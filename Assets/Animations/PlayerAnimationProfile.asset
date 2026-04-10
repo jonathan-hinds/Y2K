@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f39e0299c816f3241bc6ab5b7a642fb2, type: 3}
+  m_Name: PlayerAnimationProfile
+  m_EditorClassIdentifier: 
+  baseController: {fileID: 9100000, guid: 331b624172087014780280ba6669a2d3, type: 2}
+  idleClip: {fileID: -8945691123924629249, guid: b6a56f2d6a3b59b47a0a8d016b8a21c9, type: 3}
+  moveForwardClip: {fileID: 8349542763059015795, guid: b6a56f2d6a3b59b47a0a8d016b8a21c9, type: 3}
+  moveRightClip: {fileID: -1780630075428498128, guid: b6a56f2d6a3b59b47a0a8d016b8a21c9, type: 3}
+  moveBackwardClip: {fileID: 8349542763059015795, guid: b6a56f2d6a3b59b47a0a8d016b8a21c9, type: 3}
+  moveLeftClip: {fileID: 8013224679525160079, guid: b6a56f2d6a3b59b47a0a8d016b8a21c9, type: 3}
+  jumpStartClip: {fileID: -7130173953309157469, guid: b6a56f2d6a3b59b47a0a8d016b8a21c9, type: 3}
+  jumpHoldClip: {fileID: -5313546299885972514, guid: b6a56f2d6a3b59b47a0a8d016b8a21c9, type: 3}
+  jumpReleaseClip: {fileID: 4949615076265173411, guid: b6a56f2d6a3b59b47a0a8d016b8a21c9, type: 3}
+  jumpAscendingClip: {fileID: 3145914468455835084, guid: b6a56f2d6a3b59b47a0a8d016b8a21c9, type: 3}
+  jumpDescendingClip: {fileID: -4146633653483195186, guid: b6a56f2d6a3b59b47a0a8d016b8a21c9, type: 3}
+  landingClip: {fileID: 7400000, guid: 6ac87f2445b0b034eb67c9f7a8f60d5b, type: 2}
+  footIkProfile: {fileID: 11400000, guid: d88573fb650767a479aced944baa985d, type: 2}
