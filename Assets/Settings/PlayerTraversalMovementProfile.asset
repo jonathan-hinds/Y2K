@@ -12,18 +12,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7e1c46a8c9358c24c9d5f3a065188d9b, type: 3}
   m_Name: PlayerTraversalMovementProfile
   m_EditorClassIdentifier: 
-  <WalkSpeed>k__BackingField: 25
-  <SprintSpeed>k__BackingField: 45
+  <WalkSpeed>k__BackingField: 45
+  <SprintSpeed>k__BackingField: 60
   <Acceleration>k__BackingField: 1
   <Deceleration>k__BackingField: 1
   <AirControlPercent>k__BackingField: 0.9
   <RotationSharpness>k__BackingField: 18
-  <Gravity>k__BackingField: -30
+  <Gravity>k__BackingField: -100
   <GroundedVerticalVelocity>k__BackingField: -2
-  <JumpHeight>k__BackingField: 5
+  <JumpHeight>k__BackingField: 10
   <CoyoteTime>k__BackingField: 0.14
   <JumpBufferTime>k__BackingField: 0.15
-  <AscendingVelocityThreshold>k__BackingField: 0.05
+  <AscendingVelocityThreshold>k__BackingField: 0.1
   <GroundProbeDistance>k__BackingField: 0.9
   <GroundProbeMask>k__BackingField:
     serializedVersion: 2
