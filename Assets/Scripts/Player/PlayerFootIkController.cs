@@ -475,6 +475,17 @@ namespace Race.Player
             return child;
         }
 
+#endif
+
+        private void NotifyGroundingModeController()
+        {
+            PlayerVisualGroundingModeController modeController = GetComponent<PlayerVisualGroundingModeController>();
+            if (modeController != null)
+            {
+                modeController.SyncModeFromComponents();
+            }
+        }
+
         private static Transform FindDescendantByName(Transform root, string targetName)
         {
             if (root == null || string.IsNullOrWhiteSpace(targetName))
@@ -497,16 +508,6 @@ namespace Race.Player
             }
 
             return null;
-        }
-#endif
-
-        private void NotifyGroundingModeController()
-        {
-            PlayerVisualGroundingModeController modeController = GetComponent<PlayerVisualGroundingModeController>();
-            if (modeController != null)
-            {
-                modeController.SyncModeFromComponents();
-            }
         }
     }
 }

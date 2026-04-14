@@ -21,6 +21,7 @@ namespace Race.Roads
         [SerializeField] private RoadSplineProfile profile;
         [SerializeField] private bool autoApplyInEditor = true;
         [SerializeField] private SplineContainer splineContainer;
+        [SerializeField] private SplineInstantiate splineInstantiate;
         [SerializeField] private MeshFilter meshFilter;
         [SerializeField] private MeshRenderer meshRenderer;
         [SerializeField] private MeshCollider meshCollider;
@@ -71,6 +72,10 @@ namespace Race.Roads
             {
                 return;
             }
+
+#if UNITY_EDITOR
+            SyncSplineInstantiatePreview();
+#endif
 
             if (!TryGetSegmentSource(out Mesh sourceMesh, out Material[] materials))
             {
@@ -226,6 +231,11 @@ namespace Race.Roads
                 splineContainer = GetComponent<SplineContainer>();
             }
 
+            if (splineInstantiate == null)
+            {
+                splineInstantiate = GetComponent<SplineInstantiate>();
+            }
+
             if (meshFilter == null)
             {
                 meshFilter = GetComponent<MeshFilter>();
@@ -304,6 +314,37 @@ namespace Race.Roads
             }
 
             ApplyProfile();
+        }
+
+        private void SyncSplineInstantiatePreview()
+        {
+            if (splineInstantiate == null || profile == null || profile.SegmentPrefab == null)
+            {
+                return;
+            }
+
+            SerializedObject serializedInstantiate = new SerializedObject(splineInstantiate);
+            serializedInstantiate.FindProperty("m_Space").intValue = (int)profile.CoordinateSpace;
+            serializedInstantiate.FindProperty("m_Spacing").vector2Value =
+                new Vector2(profile.SegmentSpacing, profile.SegmentSpacing);
+
+            SerializedProperty itemsProperty = serializedInstantiate.FindProperty("m_ItemsToInstantiate");
+            if (itemsProperty.arraySize == 0)
+            {
+                itemsProperty.InsertArrayElementAtIndex(0);
+            }
+
+            SerializedProperty firstItem = itemsProperty.GetArrayElementAtIndex(0);
+            firstItem.FindPropertyRelative("Prefab").objectReferenceValue = profile.SegmentPrefab;
+            firstItem.FindPropertyRelative("Probability").floatValue = 1f;
+
+            for (int i = itemsProperty.arraySize - 1; i >= 1; i--)
+            {
+                itemsProperty.DeleteArrayElementAtIndex(i);
+            }
+
+            serializedInstantiate.ApplyModifiedPropertiesWithoutUndo();
+            EditorUtility.SetDirty(splineInstantiate);
         }
 #endif
     }

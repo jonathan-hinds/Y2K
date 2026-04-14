@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 50c1e5171f429ee49a348e8df3a7e532, type: 3}
+  m_Name: Artilery01SplineProfile
+  m_EditorClassIdentifier: 
+  <SegmentPrefab>k__BackingField: {fileID: 5494953067878716069, guid: f0cbfbd2740995c4bacd2194be949db9, type: 3}
+  <SegmentSpacing>k__BackingField: 19
+  <ForwardAxis>k__BackingField: 1
+  <UpAxis>k__BackingField: 2
+  <CrossSectionRollDegrees>k__BackingField: 90
+  <CoordinateSpace>k__BackingField: 1

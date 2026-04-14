@@ -32,10 +32,13 @@ namespace Race.Lighting
             targetLight.color = lightColor;
             targetLight.intensity = intensity;
             targetLight.range = range;
-            targetLight.lightmapBakeType = bakeType;
             targetLight.shadows = shadows;
             targetLight.renderMode = renderMode;
             targetLight.bounceIntensity = indirectMultiplier;
+
+#if UNITY_EDITOR
+            targetLight.lightmapBakeType = bakeType;
+#endif
 
             if (lightType == LightType.Spot)
             {

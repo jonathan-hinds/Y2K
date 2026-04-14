@@ -137,7 +137,7 @@ MonoBehaviour:
     Probability: 1
   m_Method: 1
   m_Space: 1
-  m_Spacing: {x: 19.34, y: 19.34}
+  m_Spacing: {x: 8.8, y: 8.8}
   m_Up: 1
   m_Forward: 0
   m_PositionOffset:
@@ -182,6 +182,7 @@ MonoBehaviour:
   profile: {fileID: 11400000, guid: 947acf74fe1ef024882521508fd86a6b, type: 2}
   autoApplyInEditor: 1
   splineContainer: {fileID: 4270066217527977592}
+  splineInstantiate: {fileID: 3094207419295770638}
   meshFilter: {fileID: 3500406295135694366}
   meshRenderer: {fileID: 6184349370570869588}
   meshCollider: {fileID: 3470080861689664768}
