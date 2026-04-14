@@ -21,6 +21,7 @@ MonoBehaviour:
   <Gravity>k__BackingField: -100
   <GroundedVerticalVelocity>k__BackingField: -2
   <JumpHeight>k__BackingField: 10
+  <WallJumpHeight>k__BackingField: 20
   <CoyoteTime>k__BackingField: 0.14
   <JumpBufferTime>k__BackingField: 0.15
   <JumpPreparationUngroundedTolerance>k__BackingField: 0.08
@@ -45,3 +46,5 @@ MonoBehaviour:
   <WallRideVerticalBrakeDeceleration>k__BackingField: 100
   <WallRideContactOffset>k__BackingField: 0.2
   <WallRideProbeDistance>k__BackingField: 0.2
+  <WallRideEntryUpwardBoost>k__BackingField: 12
+  <TraversalActivationWindow>k__BackingField: 0.5

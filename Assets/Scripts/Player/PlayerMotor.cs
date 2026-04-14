@@ -38,6 +38,7 @@ namespace Race.Player
 
         [Header("Jump")]
         [SerializeField] private float jumpHeight = 10f;
+        [SerializeField] private float wallJumpHeight = 10f;
         [SerializeField] private float coyoteTime = 0.1f;
         [SerializeField] private float jumpBufferTime = 0.12f;
         [SerializeField, Min(0f)] private float jumpPreparationUngroundedTolerance = 0.08f;
@@ -67,6 +68,8 @@ namespace Race.Player
         [SerializeField] private float wallRideVerticalBrakeDeceleration = 4f;
         [SerializeField] private float wallRideContactOffset = 0.08f;
         [SerializeField] private float wallRideProbeDistance = 0.2f;
+        [SerializeField, Min(0f)] private float wallRideEntryUpwardBoost = 12f;
+        [SerializeField, Min(0f)] private float traversalActivationWindow = 0.2f;
 
         [Header("Debug")]
         [SerializeField] private bool enableWallRideDebugLogs;
@@ -90,11 +93,13 @@ namespace Race.Player
         private float lastGroundContactTime = float.NegativeInfinity;
         private bool jumpConsumed;
         private bool jumpPreparing;
+        private bool jumpStartedFromWallRide;
         private bool isWallRiding;
         private JumpPhase jumpPhase;
         private Collider activeWallCollider;
         private Vector3 wallNormal = Vector3.zero;
         private WallContact pendingWallContact;
+        private readonly TimedTraversalInputGate wallRideInputGate = new();
 
         public Vector3 WorldVelocity => new Vector3(planarVelocity.x, verticalVelocity, planarVelocity.z);
         public float PlanarSpeed => planarVelocity.magnitude;
@@ -146,12 +151,14 @@ namespace Race.Player
             isWallRiding = false;
             jumpConsumed = false;
             jumpPreparing = false;
+            jumpStartedFromWallRide = false;
             jumpBufferTimer = 0f;
             jumpPreparationTimer = 0f;
             jumpPreparationUngroundedTimer = 0f;
             activeWallCollider = null;
             wallNormal = Vector3.zero;
             pendingWallContact = default;
+            wallRideInputGate.Reset();
 
             if (visualRoot != null && (slopeAlignment == null || !slopeAlignment.IsAlignmentActive))
             {
@@ -256,6 +263,7 @@ namespace Race.Player
             UpdateActualVerticalSpeed();
             UpdateGroundingState();
             ProbeForNearbyWallContact();
+            UpdateWallRideInputWindow();
             UpdateWallRideStateAfterMove();
             ProcessLandingEvents(wasGroundedBeforeMove);
 
@@ -329,7 +337,12 @@ namespace Race.Player
 
         private void StartJumpPreparation()
         {
-            EndWallRide();
+            jumpStartedFromWallRide = isWallRiding;
+            if (!jumpStartedFromWallRide)
+            {
+                EndWallRide();
+            }
+
             jumpConsumed = true;
             jumpBufferTimer = 0f;
             jumpPreparationTimer = 0f;
@@ -348,11 +361,19 @@ namespace Race.Player
                 return;
             }
 
+            bool releasingFromWallRide = jumpStartedFromWallRide;
             jumpPreparing = false;
             jumpPreparationTimer = 0f;
             jumpPreparationUngroundedTimer = 0f;
             coyoteTimer = 0f;
-            verticalVelocity = Mathf.Sqrt(2f * Mathf.Abs(gravity) * jumpHeight);
+            float selectedJumpHeight = releasingFromWallRide ? wallJumpHeight : jumpHeight;
+            if (releasingFromWallRide)
+            {
+                EndWallRide();
+            }
+
+            verticalVelocity = Mathf.Sqrt(2f * Mathf.Abs(gravity) * selectedJumpHeight);
+            jumpStartedFromWallRide = false;
             JumpReleased?.Invoke();
         }
 
@@ -408,6 +429,7 @@ namespace Race.Player
             {
                 jumpConsumed = false;
                 jumpPreparing = false;
+                jumpStartedFromWallRide = false;
                 jumpPreparationTimer = 0f;
                 jumpPreparationUngroundedTimer = 0f;
                 verticalVelocity = groundedVerticalVelocity;
@@ -635,6 +657,7 @@ namespace Race.Player
         {
             if (IsGrounded)
             {
+                wallRideInputGate.Reset();
                 LogWallRideState("blocked grounded");
                 EndWallRide();
                 return;
@@ -642,19 +665,20 @@ namespace Race.Player
 
             if (!pendingWallContact.IsValid)
             {
+                wallRideInputGate.Reset();
                 LogWallRideState("blocked no_contact");
                 EndWallRide();
                 return;
             }
 
-            if (!CanWallRide(out string rejectionReason))
+            bool wasWallRiding = isWallRiding;
+            if (!CanWallRide(out string rejectionReason) || (!wasWallRiding && !TryConsumeWallRideStartInput(out rejectionReason)))
             {
                 LogWallRideState($"blocked {rejectionReason}");
                 EndWallRide();
                 return;
             }
 
-            bool wasWallRiding = isWallRiding;
             bool shouldRefreshJump = !wasWallRiding
                 || activeWallCollider != pendingWallContact.Collider
                 || Vector3.Dot(wallNormal, pendingWallContact.Normal) < 0.999f;
@@ -669,6 +693,12 @@ namespace Race.Player
                 ResetJumpForWallRide();
             }
 
+            if (!wasWallRiding)
+            {
+                ApplyWallRideEntryBoost();
+            }
+
+            wallRideInputGate.Reset();
             LogWallRideState(wasWallRiding ? "maintained" : "started");
 
             if (!wasWallRiding)
@@ -703,6 +733,18 @@ namespace Race.Player
             wallNormal = Vector3.zero;
         }
 
+        private void UpdateWallRideInputWindow()
+        {
+            wallRideInputGate.Configure(traversalActivationWindow);
+
+            if (isWallRiding || !pendingWallContact.IsValid)
+            {
+                return;
+            }
+
+            wallRideInputGate.RegisterOpportunity(GetWallRideOpportunityId(pendingWallContact.Collider));
+        }
+
         private bool CanWallRide(out string rejectionReason)
         {
             if (IsGrounded)
@@ -713,13 +755,51 @@ namespace Race.Player
 
             if (jumpPreparing)
             {
+                if (isWallRiding)
+                {
+                    rejectionReason = string.Empty;
+                    return true;
+                }
+
                 rejectionReason = "jump_preparing";
                 return false;
+            }
+
+            if (isWallRiding)
+            {
+                rejectionReason = string.Empty;
+                return true;
             }
 
             bool isFalling = verticalVelocity <= ascendingVelocityThreshold;
             rejectionReason = isFalling ? string.Empty : $"not_falling({verticalVelocity:F2})";
             return isFalling;
+        }
+
+        private void ApplyWallRideEntryBoost()
+        {
+            if (wallRideEntryUpwardBoost <= Mathf.Epsilon)
+            {
+                return;
+            }
+
+            verticalVelocity = Mathf.Max(verticalVelocity, wallRideEntryUpwardBoost);
+        }
+
+        private bool TryConsumeWallRideStartInput(out string rejectionReason)
+        {
+            int opportunityId = GetWallRideOpportunityId(pendingWallContact.Collider);
+            if (wallRideInputGate.TryConsume(opportunityId, input != null && input.JumpPressedThisFrame))
+            {
+                jumpBufferTimer = 0f;
+                rejectionReason = string.Empty;
+                return true;
+            }
+
+            rejectionReason = wallRideInputGate.IsOpenFor(opportunityId)
+                ? "awaiting_jump_input"
+                : "jump_input_window_expired";
+            return false;
         }
 
         private void OnControllerColliderHit(ControllerColliderHit _)
@@ -839,6 +919,7 @@ namespace Race.Player
             }
 
             jumpPreparing = false;
+            jumpStartedFromWallRide = false;
             jumpPreparationTimer = 0f;
             jumpPreparationUngroundedTimer = 0f;
         }
@@ -885,6 +966,11 @@ namespace Race.Player
             return colliderRoot == transform.root;
         }
 
+        private static int GetWallRideOpportunityId(Collider collider)
+        {
+            return collider != null ? collider.GetInstanceID() : 0;
+        }
+
         private void UpdateActualVerticalSpeed()
         {
             if (Time.deltaTime <= Mathf.Epsilon)
@@ -912,6 +998,7 @@ namespace Race.Player
             gravity = movementProfile.Gravity;
             groundedVerticalVelocity = movementProfile.GroundedVerticalVelocity;
             jumpHeight = movementProfile.JumpHeight;
+            wallJumpHeight = movementProfile.WallJumpHeight;
             coyoteTime = movementProfile.CoyoteTime;
             jumpBufferTime = movementProfile.JumpBufferTime;
             jumpPreparationUngroundedTolerance = movementProfile.JumpPreparationUngroundedTolerance;
@@ -932,6 +1019,8 @@ namespace Race.Player
             wallRideVerticalBrakeDeceleration = movementProfile.WallRideVerticalBrakeDeceleration;
             wallRideContactOffset = movementProfile.WallRideContactOffset;
             wallRideProbeDistance = movementProfile.WallRideProbeDistance;
+            wallRideEntryUpwardBoost = movementProfile.WallRideEntryUpwardBoost;
+            traversalActivationWindow = movementProfile.TraversalActivationWindow;
         }
 
         private Vector3 GetInitialFacingForward()
@@ -951,5 +1040,72 @@ namespace Race.Player
             fallback = Vector3.ProjectOnPlane(fallback, Vector3.up);
             return fallback.sqrMagnitude > 0.0001f ? fallback.normalized : Vector3.forward;
         }
+    }
+
+    internal sealed class TimedTraversalInputGate
+    {
+        private float activationWindowSeconds;
+        private int activeOpportunityId;
+        private float windowExpiresAt = float.NegativeInfinity;
+        private bool hasOpenWindow;
+
+        public void Configure(float activationWindowDuration)
+        {
+            activationWindowSeconds = Mathf.Max(0f, activationWindowDuration);
+        }
+
+        public void Reset()
+        {
+            hasOpenWindow = false;
+            activeOpportunityId = 0;
+            windowExpiresAt = float.NegativeInfinity;
+        }
+
+        public bool RequiresTimedInput => activationWindowSeconds > Mathf.Epsilon;
+
+        public void RegisterOpportunity(int opportunityId)
+        {
+            if (!RequiresTimedInput || opportunityId == 0)
+            {
+                return;
+            }
+
+            if (hasOpenWindow && activeOpportunityId == opportunityId && !HasExpired)
+            {
+                return;
+            }
+
+            hasOpenWindow = true;
+            activeOpportunityId = opportunityId;
+            windowExpiresAt = Time.time + activationWindowSeconds;
+        }
+
+        public bool IsOpenFor(int opportunityId)
+        {
+            if (!RequiresTimedInput)
+            {
+                return true;
+            }
+
+            return hasOpenWindow && activeOpportunityId == opportunityId && !HasExpired;
+        }
+
+        public bool TryConsume(int opportunityId, bool pressedThisFrame)
+        {
+            if (!RequiresTimedInput)
+            {
+                return true;
+            }
+
+            if (!pressedThisFrame || !IsOpenFor(opportunityId))
+            {
+                return false;
+            }
+
+            Reset();
+            return true;
+        }
+
+        private bool HasExpired => hasOpenWindow && Time.time > windowExpiresAt;
     }
 }

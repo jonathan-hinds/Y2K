@@ -17,6 +17,7 @@ namespace Race.Player
 
         [field: Header("Jump")]
         [field: SerializeField, Min(0f)] public float JumpHeight { get; private set; } = 10f;
+        [field: SerializeField, Min(0f)] public float WallJumpHeight { get; private set; } = 10f;
         [field: SerializeField, Min(0f)] public float CoyoteTime { get; private set; } = 0.14f;
         [field: SerializeField, Min(0f)] public float JumpBufferTime { get; private set; } = 0.15f;
         [field: SerializeField, Min(0f)] public float JumpPreparationUngroundedTolerance { get; private set; } = 0.08f;
@@ -41,6 +42,10 @@ namespace Race.Player
         [field: SerializeField, Min(0f)] public float WallRideVerticalBrakeDeceleration { get; private set; } = 4f;
         [field: SerializeField, Min(0f)] public float WallRideContactOffset { get; private set; } = 0.08f;
         [field: SerializeField, Min(0f)] public float WallRideProbeDistance { get; private set; } = 0.2f;
+        [field: SerializeField, Min(0f)] public float WallRideEntryUpwardBoost { get; private set; } = 12f;
+
+        [field: Header("Traversal Timing")]
+        [field: SerializeField, Min(0f)] public float TraversalActivationWindow { get; private set; } = 0.2f;
 
     }
 }
