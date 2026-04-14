@@ -71,9 +71,12 @@ namespace Race.Player
                 return;
             }
 
-            bool shouldForceIdle = playerMotor.PlanarSpeed <= idleAnimationSpeedThreshold;
+            bool isGrinding = playerMotor.IsGrinding;
+            bool shouldForceIdle = !isGrinding && playerMotor.PlanarSpeed <= idleAnimationSpeedThreshold;
             bool isWallRiding = playerMotor.IsWallRiding;
-            Vector2 normalizedInputDirection = isWallRiding
+            Vector2 normalizedInputDirection = isGrinding
+                ? Vector2.up
+                : isWallRiding
                 ? BuildWallRideAnimationDirection()
                 : BuildInputAnimationDirection(playerMotor.MoveInput);
             float normalizedSpeed = playerMotor.PlanarSpeed / Mathf.Max(normalizedWalkSpeed, 0.01f);
@@ -85,9 +88,10 @@ namespace Race.Player
             }
 
             normalizedLocalVelocity = BuildLocomotionAnimationVector(normalizedLocalVelocity);
-            bool animationGrounded = playerMotor.IsGrounded || isWallRiding;
-            float animationVerticalSpeed = isWallRiding ? Mathf.Max(0f, playerMotor.ActualVerticalSpeed) : playerMotor.ActualVerticalSpeed;
-            int animationJumpPhase = isWallRiding
+            bool traversalActive = isWallRiding || isGrinding;
+            bool animationGrounded = playerMotor.IsGrounded || traversalActive;
+            float animationVerticalSpeed = traversalActive ? Mathf.Max(0f, playerMotor.ActualVerticalSpeed) : playerMotor.ActualVerticalSpeed;
+            int animationJumpPhase = traversalActive
                 ? (int)PlayerMotor.JumpPhase.Ascending
                 : (int)playerMotor.CurrentJumpPhase;
             var animationState = new PlayerAnimationState(

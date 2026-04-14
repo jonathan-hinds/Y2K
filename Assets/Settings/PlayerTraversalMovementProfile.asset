@@ -47,4 +47,17 @@ MonoBehaviour:
   <WallRideContactOffset>k__BackingField: 0.2
   <WallRideProbeDistance>k__BackingField: 0.2
   <WallRideEntryUpwardBoost>k__BackingField: 12
+  <GrindMask>k__BackingField:
+    serializedVersion: 2
+    m_Bits: 256
+  <GrindProbeDistance>k__BackingField: 0.18
+  <GrindJumpHeight>k__BackingField: 10
+  <GrindEntrySpeedBoost>k__BackingField: 8
+  <GrindGravityScale>k__BackingField: 1
+  <GrindSpeedDrag>k__BackingField: 0.75
+  <GrindMagnetism>k__BackingField: 20
+  <GrindDetachDistance>k__BackingField: 0.4
+  <GrindAirborneReattachTime>k__BackingField: 0.4
+  <GrindAirborneReattachDistance>k__BackingField: 0.55
+  <GrindAirControlDetachThreshold>k__BackingField: 0.35
   <TraversalActivationWindow>k__BackingField: 0.5

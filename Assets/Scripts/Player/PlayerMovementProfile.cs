@@ -44,6 +44,19 @@ namespace Race.Player
         [field: SerializeField, Min(0f)] public float WallRideProbeDistance { get; private set; } = 0.2f;
         [field: SerializeField, Min(0f)] public float WallRideEntryUpwardBoost { get; private set; } = 12f;
 
+        [field: Header("Grinding")]
+        [field: SerializeField] public LayerMask GrindMask { get; private set; } = ~0;
+        [field: SerializeField, Min(0f)] public float GrindProbeDistance { get; private set; } = 0.2f;
+        [field: SerializeField, Min(0f)] public float GrindJumpHeight { get; private set; } = 10f;
+        [field: SerializeField, Min(0f)] public float GrindEntrySpeedBoost { get; private set; } = 10f;
+        [field: SerializeField, Min(0f)] public float GrindGravityScale { get; private set; } = 1f;
+        [field: SerializeField, Min(0f)] public float GrindSpeedDrag { get; private set; } = 1f;
+        [field: SerializeField, Min(0f)] public float GrindMagnetism { get; private set; } = 16f;
+        [field: SerializeField, Min(0f)] public float GrindDetachDistance { get; private set; } = 0.45f;
+        [field: SerializeField, Min(0f)] public float GrindAirborneReattachTime { get; private set; } = 0.35f;
+        [field: SerializeField, Min(0f)] public float GrindAirborneReattachDistance { get; private set; } = 0.5f;
+        [field: SerializeField, Range(0f, 1f)] public float GrindAirControlDetachThreshold { get; private set; } = 0.35f;
+
         [field: Header("Traversal Timing")]
         [field: SerializeField, Min(0f)] public float TraversalActivationWindow { get; private set; } = 0.2f;
 

@@ -1,4 +1,5 @@
 using UnityEngine;
+using Race.Grinding;
 
 namespace Race.Player
 {
@@ -13,6 +14,14 @@ namespace Race.Player
             public Collider Collider;
             public Vector3 Normal;
             public Vector3 Point;
+            public float Score;
+        }
+
+        private struct GrindContact
+        {
+            public bool IsValid;
+            public GrindRail Rail;
+            public GrindRail.Sample Sample;
             public float Score;
         }
 
@@ -48,6 +57,7 @@ namespace Race.Player
         [SerializeField] private Transform visualRoot;
         [SerializeField] private PlayerMovementProfile movementProfile;
         [SerializeField] private PlayerWallRideProbe wallRideProbe;
+        [SerializeField] private PlayerGrindProbe grindProbe;
 
         [Header("Grounding")]
         [SerializeField] private float groundProbeDistance = 0.75f;
@@ -70,6 +80,19 @@ namespace Race.Player
         [SerializeField] private float wallRideProbeDistance = 0.2f;
         [SerializeField, Min(0f)] private float wallRideEntryUpwardBoost = 12f;
         [SerializeField, Min(0f)] private float traversalActivationWindow = 0.2f;
+
+        [Header("Grinding")]
+        [SerializeField] private LayerMask grindMask = ~0;
+        [SerializeField, Min(0f)] private float grindProbeDistance = 0.2f;
+        [SerializeField, Min(0f)] private float grindJumpHeight = 10f;
+        [SerializeField, Min(0f)] private float grindEntrySpeedBoost = 10f;
+        [SerializeField, Min(0f)] private float grindGravityScale = 1f;
+        [SerializeField, Min(0f)] private float grindSpeedDrag = 1f;
+        [SerializeField, Min(0f)] private float grindMagnetism = 16f;
+        [SerializeField, Min(0f)] private float grindDetachDistance = 0.45f;
+        [SerializeField, Min(0f)] private float grindAirborneReattachTime = 0.35f;
+        [SerializeField, Min(0f)] private float grindAirborneReattachDistance = 0.5f;
+        [SerializeField, Range(0f, 1f)] private float grindAirControlDetachThreshold = 0.35f;
 
         [Header("Debug")]
         [SerializeField] private bool enableWallRideDebugLogs;
@@ -94,11 +117,24 @@ namespace Race.Player
         private bool jumpConsumed;
         private bool jumpPreparing;
         private bool jumpStartedFromWallRide;
+        private bool jumpStartedFromGrind;
         private bool isWallRiding;
+        private bool isGrinding;
+        private bool isGrindingAttached;
         private JumpPhase jumpPhase;
         private Collider activeWallCollider;
         private Vector3 wallNormal = Vector3.zero;
         private WallContact pendingWallContact;
+        private GrindContact pendingGrindContact;
+        private GrindRail activeGrindRail;
+        private float activeGrindT;
+        private float grindSignedSpeed;
+        private float grindAirborneTimer;
+        private Vector3 grindTangent = Vector3.forward;
+        private Vector3 grindUp = Vector3.up;
+        private Vector3 previousGrindProbeCenter;
+        private bool hasPreviousGrindProbeCenter;
+        private readonly Collider[] grindProbeResults = new Collider[64];
         private readonly TimedTraversalInputGate wallRideInputGate = new();
 
         public Vector3 WorldVelocity => new Vector3(planarVelocity.x, verticalVelocity, planarVelocity.z);
@@ -118,6 +154,7 @@ namespace Race.Player
         public float CurrentSlopeAngle { get; private set; }
         public bool IsSlopeSliding { get; private set; }
         public bool IsWallRiding => isWallRiding;
+        public bool IsGrinding => isGrinding;
         public Vector3 WallNormal => wallNormal;
 
         public event System.Action JumpStarted;
@@ -152,18 +189,31 @@ namespace Race.Player
             jumpConsumed = false;
             jumpPreparing = false;
             jumpStartedFromWallRide = false;
+            jumpStartedFromGrind = false;
             jumpBufferTimer = 0f;
             jumpPreparationTimer = 0f;
             jumpPreparationUngroundedTimer = 0f;
             activeWallCollider = null;
             wallNormal = Vector3.zero;
             pendingWallContact = default;
+            pendingGrindContact = default;
+            activeGrindRail = null;
+            activeGrindT = 0f;
+            grindSignedSpeed = 0f;
+            grindAirborneTimer = 0f;
+            isGrinding = false;
+            isGrindingAttached = false;
+            grindTangent = Vector3.forward;
+            grindUp = Vector3.up;
+            hasPreviousGrindProbeCenter = false;
             wallRideInputGate.Reset();
 
             if (visualRoot != null && (slopeAlignment == null || !slopeAlignment.IsAlignmentActive))
             {
                 visualRoot.rotation = Quaternion.LookRotation(facingForward, Vector3.up);
             }
+
+            TryCaptureCurrentGrindProbeCenter();
         }
 
         private void Awake()
@@ -185,8 +235,14 @@ namespace Race.Player
                 wallRideProbe = GetComponentInChildren<PlayerWallRideProbe>();
             }
 
+            if (grindProbe == null)
+            {
+                grindProbe = GetComponentInChildren<PlayerGrindProbe>();
+            }
+
             facingForward = GetInitialFacingForward();
             previousPosition = transform.position;
+            TryCaptureCurrentGrindProbeCenter();
         }
 
         private void Update()
@@ -227,34 +283,41 @@ namespace Race.Player
         private void UpdateMovement()
         {
             UpdateGroundingState();
-            BeginWallContactFrame();
+            BeginTraversalContactFrame();
             ReleaseWallRideIfProbeLostContact();
+            ReleaseGrindingIfProbeLostContact();
             Vector3 forward = facingForward.sqrMagnitude > 0.0001f ? facingForward : GetInitialFacingForward();
             Vector3 right = Vector3.Cross(Vector3.up, forward).normalized;
             Vector2 moveInput = Vector2.ClampMagnitude(input.MoveInput, 1f);
-            MoveInput = moveInput;
+            MoveInput = isGrinding && isGrindingAttached ? Vector2.zero : moveInput;
 
-            Vector3 desiredPlanarVelocity = (right * moveInput.x + forward * moveInput.y) * GetTargetSpeed();
-            if (IsGrounded)
+            if (!isGrinding)
             {
-                desiredPlanarVelocity = Vector3.ProjectOnPlane(desiredPlanarVelocity, groundNormal);
+                Vector3 desiredPlanarVelocity = (right * moveInput.x + forward * moveInput.y) * GetTargetSpeed();
+                if (IsGrounded)
+                {
+                    desiredPlanarVelocity = Vector3.ProjectOnPlane(desiredPlanarVelocity, groundNormal);
+                }
+                else if (isWallRiding)
+                {
+                    desiredPlanarVelocity = Vector3.ProjectOnPlane(desiredPlanarVelocity, wallNormal);
+                }
+
+                float controlPercent = IsGrounded ? 1f : airControlPercent;
+                float sharpness = desiredPlanarVelocity.sqrMagnitude > 0.0001f ? acceleration : deceleration;
+                sharpness *= controlPercent;
+                planarVelocity = Vector3.Lerp(planarVelocity, desiredPlanarVelocity, 1f - Mathf.Exp(-sharpness * Time.deltaTime));
+                ApplyWallRideVelocityConstraints();
+                ApplySurfaceGravity();
+                ApplySlopeSliding();
+                ApplyIdlePlanarSnap(moveInput);
+                HandleJumpInput();
+                ApplyVerticalForces();
             }
-            else if (isWallRiding)
+            else
             {
-                desiredPlanarVelocity = Vector3.ProjectOnPlane(desiredPlanarVelocity, wallNormal);
+                HandleGrinding(moveInput);
             }
-
-            float controlPercent = IsGrounded ? 1f : airControlPercent;
-            float sharpness = desiredPlanarVelocity.sqrMagnitude > 0.0001f ? acceleration : deceleration;
-            sharpness *= controlPercent;
-            planarVelocity = Vector3.Lerp(planarVelocity, desiredPlanarVelocity, 1f - Mathf.Exp(-sharpness * Time.deltaTime));
-            ApplyWallRideVelocityConstraints();
-            ApplySurfaceGravity();
-            ApplySlopeSliding();
-            ApplyIdlePlanarSnap(moveInput);
-
-            HandleJumpInput();
-            ApplyVerticalForces();
 
             bool wasGroundedBeforeMove = IsGrounded;
 
@@ -263,8 +326,10 @@ namespace Race.Player
             UpdateActualVerticalSpeed();
             UpdateGroundingState();
             ProbeForNearbyWallContact();
+            ProbeForNearbyGrindContact();
             UpdateWallRideInputWindow();
             UpdateWallRideStateAfterMove();
+            UpdateGrindingStateAfterMove();
             ProcessLandingEvents(wasGroundedBeforeMove);
 
             LocalVelocity = new Vector2(
@@ -322,7 +387,7 @@ namespace Race.Player
         private void HandleJumpInput()
         {
             bool canUseBufferedJump = jumpBufferTimer > 0f;
-            bool canStartJumpPreparation = !jumpConsumed && (IsGrounded || coyoteTimer > 0f || isWallRiding);
+            bool canStartJumpPreparation = !jumpConsumed && (IsGrounded || coyoteTimer > 0f || isWallRiding || isGrinding);
             if (canUseBufferedJump && canStartJumpPreparation)
             {
                 StartJumpPreparation();
@@ -338,9 +403,14 @@ namespace Race.Player
         private void StartJumpPreparation()
         {
             jumpStartedFromWallRide = isWallRiding;
+            jumpStartedFromGrind = isGrinding;
             if (!jumpStartedFromWallRide)
             {
                 EndWallRide();
+            }
+            if (!jumpStartedFromGrind)
+            {
+                EndGrinding(false);
             }
 
             jumpConsumed = true;
@@ -362,18 +432,28 @@ namespace Race.Player
             }
 
             bool releasingFromWallRide = jumpStartedFromWallRide;
+            bool releasingFromGrind = jumpStartedFromGrind;
             jumpPreparing = false;
             jumpPreparationTimer = 0f;
             jumpPreparationUngroundedTimer = 0f;
             coyoteTimer = 0f;
-            float selectedJumpHeight = releasingFromWallRide ? wallJumpHeight : jumpHeight;
+            float selectedJumpHeight = releasingFromWallRide
+                ? wallJumpHeight
+                : releasingFromGrind
+                    ? grindJumpHeight
+                    : jumpHeight;
             if (releasingFromWallRide)
             {
                 EndWallRide();
             }
+            if (releasingFromGrind)
+            {
+                EndGrinding(false);
+            }
 
             verticalVelocity = Mathf.Sqrt(2f * Mathf.Abs(gravity) * selectedJumpHeight);
             jumpStartedFromWallRide = false;
+            jumpStartedFromGrind = false;
             JumpReleased?.Invoke();
         }
 
@@ -407,6 +487,11 @@ namespace Race.Player
                     0f,
                     wallRideVerticalBrakeDeceleration * Time.deltaTime);
             }
+
+            if (isGrindingAttached && verticalVelocity < 0f)
+            {
+                verticalVelocity = Mathf.Max(verticalVelocity, Vector3.Dot(grindTangent * grindSignedSpeed, Vector3.up));
+            }
         }
 
         private void ProcessLandingEvents(bool wasGroundedBeforeMove)
@@ -430,6 +515,7 @@ namespace Race.Player
                 jumpConsumed = false;
                 jumpPreparing = false;
                 jumpStartedFromWallRide = false;
+                jumpStartedFromGrind = false;
                 jumpPreparationTimer = 0f;
                 jumpPreparationUngroundedTimer = 0f;
                 verticalVelocity = groundedVerticalVelocity;
@@ -444,6 +530,7 @@ namespace Race.Player
             if (IsGrounded)
             {
                 EndWallRide();
+                EndGrinding(false);
             }
 
         }
@@ -582,19 +669,97 @@ namespace Race.Player
             planarVelocity = planarVelocity.normalized * newSpeed;
         }
 
-        private void BeginWallContactFrame()
+        private void BeginTraversalContactFrame()
         {
             pendingWallContact = default;
+            pendingGrindContact = default;
         }
 
         private void ProbeForNearbyWallContact()
         {
-            if (IsGrounded || wallRideProbeDistance <= Mathf.Epsilon || wallRideProbe == null)
+            if (isGrinding || IsGrounded || wallRideProbeDistance <= Mathf.Epsilon || wallRideProbe == null)
             {
                 return;
             }
 
             ProbeForNearbyWallContactWithSphere();
+        }
+
+        private void ProbeForNearbyGrindContact()
+        {
+            if (IsGrounded || grindProbeDistance <= Mathf.Epsilon || grindProbe == null)
+            {
+                TryCaptureCurrentGrindProbeCenter();
+                return;
+            }
+
+            if (!grindProbe.TryGetWorldSphere(out Vector3 probeCenter, out float probeRadius))
+            {
+                return;
+            }
+
+            float searchRadius = Mathf.Max(0.01f, probeRadius + grindProbeDistance);
+            int nearbyColliderCount = Physics.OverlapSphereNonAlloc(
+                probeCenter,
+                searchRadius,
+                grindProbeResults,
+                ~0,
+                QueryTriggerInteraction.Collide);
+
+            if (hasPreviousGrindProbeCenter)
+            {
+                nearbyColliderCount = Mathf.Max(
+                    nearbyColliderCount,
+                    Physics.OverlapCapsuleNonAlloc(
+                        previousGrindProbeCenter,
+                        probeCenter,
+                        searchRadius,
+                        grindProbeResults,
+                        ~0,
+                        QueryTriggerInteraction.Collide));
+            }
+
+            for (int i = 0; i < nearbyColliderCount; i++)
+            {
+                Collider collider = grindProbeResults[i];
+                if (collider == null || collider.transform.root == transform.root)
+                {
+                    continue;
+                }
+
+                GrindRail rail = collider.GetComponentInParent<GrindRail>();
+                if (rail == null)
+                {
+                    continue;
+                }
+
+                if (grindMask.value != 0 && (grindMask.value & (1 << rail.gameObject.layer)) == 0)
+                {
+                    continue;
+                }
+
+                if (!rail.TryGetNearestSample(probeCenter, out GrindRail.Sample sample))
+                {
+                    continue;
+                }
+
+                float allowedDistance = searchRadius + rail.CollisionRadius;
+                if (sample.DistanceToRail > allowedDistance)
+                {
+                    continue;
+                }
+
+                Vector3 projectedVelocity = WorldVelocity;
+                Vector3 tangent = ResolveGrindTravelTangent(sample.Tangent, projectedVelocity);
+                float alignment = projectedVelocity.sqrMagnitude > 0.0001f
+                    ? Mathf.Max(0f, Vector3.Dot(projectedVelocity.normalized, tangent))
+                    : 0f;
+                float score = (allowedDistance - sample.DistanceToRail) + alignment;
+                RegisterGrindContact(rail, sample, score);
+            }
+
+            previousGrindProbeCenter = probeCenter;
+            hasPreviousGrindProbeCenter = true;
         }
 
         private void ProbeForNearbyWallContactWithSphere()
@@ -653,8 +818,43 @@ namespace Race.Player
             EndWallRide();
         }
 
+        private void ReleaseGrindingIfProbeLostContact()
+        {
+            if (!isGrindingAttached || activeGrindRail == null || grindProbe == null)
+            {
+                return;
+            }
+
+            if (!grindProbe.TryGetWorldSphere(out Vector3 probeCenter, out float _)
+                || !activeGrindRail.TryGetNearestSample(probeCenter, out GrindRail.Sample sample))
+            {
+                isGrindingAttached = false;
+                grindAirborneTimer = 0f;
+                return;
+            }
+
+            activeGrindT = sample.T;
+            grindTangent = ResolveGrindTravelTangent(sample.Tangent, grindSignedSpeed);
+            grindUp = sample.Up;
+
+            if (sample.DistanceToRail <= grindDetachDistance)
+            {
+                return;
+            }
+
+            isGrindingAttached = false;
+            grindAirborneTimer = 0f;
+        }
+
         private void UpdateWallRideStateAfterMove()
         {
+            if (isGrinding)
+            {
+                wallRideInputGate.Reset();
+                EndWallRide();
+                return;
+            }
+
             if (IsGrounded)
             {
                 wallRideInputGate.Reset();
@@ -707,6 +907,34 @@ namespace Race.Player
             }
         }
 
+        private void UpdateGrindingStateAfterMove()
+        {
+            if (IsGrounded)
+            {
+                EndGrinding(false);
+                return;
+            }
+
+            if (isWallRiding)
+            {
+                EndGrinding(false);
+                return;
+            }
+
+            if (isGrinding)
+            {
+                RefreshActiveGrindAfterMove();
+                return;
+            }
+
+            if (!pendingGrindContact.IsValid || !CanStartGrinding())
+            {
+                return;
+            }
+
+            StartGrinding(pendingGrindContact.Rail, pendingGrindContact.Sample);
+        }
+
         private void ResetJumpForWallRide()
         {
             jumpConsumed = false;
@@ -733,11 +961,204 @@ namespace Race.Player
             wallNormal = Vector3.zero;
         }
 
+        private void StartGrinding(GrindRail rail, GrindRail.Sample sample)
+        {
+            if (rail == null)
+            {
+                return;
+            }
+
+            EndWallRide();
+            activeGrindRail = rail;
+            activeGrindT = sample.T;
+            grindTangent = ResolveGrindTravelTangent(sample.Tangent, WorldVelocity);
+            grindUp = sample.Up;
+            float entryVelocity = Vector3.Dot(WorldVelocity, grindTangent);
+            grindSignedSpeed = entryVelocity + Mathf.Sign(entryVelocity == 0f ? Vector3.Dot(grindTangent, Vector3.down) : entryVelocity)
+                * (grindEntrySpeedBoost + rail.EntrySpeedBoost);
+            if (Mathf.Abs(grindSignedSpeed) <= 0.01f)
+            {
+                grindSignedSpeed = Mathf.Sign(Vector3.Dot(grindTangent, Vector3.down)) * Mathf.Max(grindEntrySpeedBoost + rail.EntrySpeedBoost, 0.01f);
+            }
+
+            isGrinding = true;
+            isGrindingAttached = true;
+            grindAirborneTimer = 0f;
+            SnapToGrindMount(sample);
+        }
+
+        private void EndGrinding(bool preserveMomentum)
+        {
+            if (!isGrinding)
+            {
+                return;
+            }
+
+            if (!preserveMomentum)
+            {
+                Vector3 exitVelocity = grindTangent * grindSignedSpeed;
+                planarVelocity = new Vector3(exitVelocity.x, 0f, exitVelocity.z);
+                verticalVelocity = exitVelocity.y;
+            }
+
+            isGrinding = false;
+            isGrindingAttached = false;
+            activeGrindRail = null;
+            activeGrindT = 0f;
+            grindSignedSpeed = 0f;
+            grindAirborneTimer = 0f;
+            grindTangent = Vector3.forward;
+            grindUp = Vector3.up;
+        }
+
+        private void HandleGrinding(Vector2 moveInput)
+        {
+            if (!isGrinding || activeGrindRail == null)
+            {
+                return;
+            }
+
+            if (jumpPreparing)
+            {
+                planarVelocity = Vector3.zero;
+                verticalVelocity = groundedVerticalVelocity;
+                return;
+            }
+
+            if (input != null && input.JumpPressedThisFrame)
+            {
+                jumpBufferTimer = jumpBufferTime;
+                StartJumpPreparation();
+                return;
+            }
+
+            if (!isGrindingAttached)
+            {
+                HandleDetachedGrinding(moveInput);
+                return;
+            }
+
+            if (!activeGrindRail.TryAdvance(activeGrindT, grindSignedSpeed * Time.deltaTime, out GrindRail.Sample nextSample, out bool reachedEnd))
+            {
+                EndGrinding(false);
+                return;
+            }
+
+            grindTangent = ResolveGrindTravelTangent(nextSample.Tangent, grindSignedSpeed);
+            grindUp = nextSample.Up;
+            float gravityAlongRail = Vector3.Dot(Vector3.down * Mathf.Abs(gravity) * grindGravityScale, grindTangent);
+            grindSignedSpeed += gravityAlongRail * Time.deltaTime;
+            grindSignedSpeed = Mathf.MoveTowards(grindSignedSpeed, 0f, grindSpeedDrag * Time.deltaTime);
+            activeGrindT = nextSample.T;
+
+            if (reachedEnd || activeGrindRail.IsNearEnd(activeGrindT))
+            {
+                EndGrinding(false);
+                return;
+            }
+
+            Vector3 targetPosition = activeGrindRail.GetMountPoint(nextSample, GetRootOffsetFromGrindProbe());
+            Vector3 magnetVelocity = (targetPosition - transform.position) * grindMagnetism;
+            Vector3 totalVelocity = (grindTangent * grindSignedSpeed) + magnetVelocity;
+            planarVelocity = new Vector3(totalVelocity.x, 0f, totalVelocity.z);
+            verticalVelocity = totalVelocity.y;
+        }
+
+        private void HandleDetachedGrinding(Vector2 moveInput)
+        {
+            if (moveInput.magnitude >= grindAirControlDetachThreshold)
+            {
+                EndGrinding(true);
+                return;
+            }
+
+            Vector3 forward = facingForward.sqrMagnitude > 0.0001f ? facingForward : GetInitialFacingForward();
+            Vector3 right = Vector3.Cross(Vector3.up, forward).normalized;
+            Vector3 desiredPlanarVelocity = (right * moveInput.x + forward * moveInput.y) * GetTargetSpeed();
+            float sharpness = desiredPlanarVelocity.sqrMagnitude > 0.0001f ? acceleration : deceleration;
+            sharpness *= airControlPercent;
+            planarVelocity = Vector3.Lerp(planarVelocity, desiredPlanarVelocity, 1f - Mathf.Exp(-sharpness * Time.deltaTime));
+            verticalVelocity += gravity * Time.deltaTime;
+            grindAirborneTimer += Time.deltaTime;
+
+            if (grindAirborneTimer > grindAirborneReattachTime || grindProbe == null)
+            {
+                EndGrinding(true);
+                return;
+            }
+
+            if (!grindProbe.TryGetWorldSphere(out Vector3 probeCenter, out float _)
+                || !activeGrindRail.TryGetNearestSample(probeCenter, out GrindRail.Sample sample)
+                || sample.DistanceToRail > grindAirborneReattachDistance)
+            {
+                return;
+            }
+
+            isGrindingAttached = true;
+            grindAirborneTimer = 0f;
+            activeGrindT = sample.T;
+            grindTangent = ResolveGrindTravelTangent(sample.Tangent, grindSignedSpeed);
+            grindUp = sample.Up;
+            SnapToGrindMount(sample);
+        }
+
+        private void RefreshActiveGrindAfterMove()
+        {
+            if (!isGrinding || !isGrindingAttached || activeGrindRail == null || grindProbe == null)
+            {
+                return;
+            }
+
+            if (!grindProbe.TryGetWorldSphere(out Vector3 probeCenter, out float _)
+                || !activeGrindRail.TryGetNearestSample(probeCenter, out GrindRail.Sample sample))
+            {
+                isGrindingAttached = false;
+                grindAirborneTimer = 0f;
+                return;
+            }
+
+            activeGrindT = sample.T;
+            grindTangent = ResolveGrindTravelTangent(sample.Tangent, grindSignedSpeed);
+            grindUp = sample.Up;
+            if (sample.DistanceToRail > grindDetachDistance)
+            {
+                isGrindingAttached = false;
+                grindAirborneTimer = 0f;
+            }
+        }
+
+        private void SnapToGrindMount(GrindRail.Sample sample)
+        {
+            if (characterController == null || grindProbe == null)
+            {
+                return;
+            }
+
+            Vector3 targetPosition = activeGrindRail.GetMountPoint(sample, GetRootOffsetFromGrindProbe());
+            Vector3 delta = targetPosition - transform.position;
+            if (delta.sqrMagnitude <= 0.000001f)
+            {
+                return;
+            }
+
+            characterController.Move(delta);
+        }
+
+        private bool CanStartGrinding()
+        {
+            if (isGrinding || isWallRiding || jumpPreparing || IsGrounded || pendingGrindContact.Rail == null)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
         private void UpdateWallRideInputWindow()
         {
             wallRideInputGate.Configure(traversalActivationWindow);
 
-            if (isWallRiding || !pendingWallContact.IsValid)
+            if (isWallRiding || isGrinding || !pendingWallContact.IsValid)
             {
                 return;
             }
@@ -747,6 +1168,12 @@ namespace Race.Player
 
         private bool CanWallRide(out string rejectionReason)
         {
+            if (isGrinding)
+            {
+                rejectionReason = "grinding";
+                return false;
+            }
+
             if (IsGrounded)
             {
                 rejectionReason = "grounded";
@@ -774,6 +1201,22 @@ namespace Race.Player
             bool isFalling = verticalVelocity <= ascendingVelocityThreshold;
             rejectionReason = isFalling ? string.Empty : $"not_falling({verticalVelocity:F2})";
             return isFalling;
+        }
+
+        private void RegisterGrindContact(GrindRail rail, GrindRail.Sample sample, float score)
+        {
+            if (rail == null || (pendingGrindContact.IsValid && score <= pendingGrindContact.Score))
+            {
+                return;
+            }
+
+            pendingGrindContact = new GrindContact
+            {
+                IsValid = true,
+                Rail = rail,
+                Sample = sample,
+                Score = score
+            };
         }
 
         private void ApplyWallRideEntryBoost()
@@ -920,6 +1363,7 @@ namespace Race.Player
 
             jumpPreparing = false;
             jumpStartedFromWallRide = false;
+            jumpStartedFromGrind = false;
             jumpPreparationTimer = 0f;
             jumpPreparationUngroundedTimer = 0f;
         }
@@ -971,6 +1415,52 @@ namespace Race.Player
             return collider != null ? collider.GetInstanceID() : 0;
         }
 
+        private Vector3 GetRootOffsetFromGrindProbe()
+        {
+            if (grindProbe == null)
+            {
+                return Vector3.zero;
+            }
+
+            return transform.position - grindProbe.WorldCenter;
+        }
+
+        private void TryCaptureCurrentGrindProbeCenter()
+        {
+            if (grindProbe == null)
+            {
+                hasPreviousGrindProbeCenter = false;
+                return;
+            }
+
+            if (!grindProbe.TryGetWorldSphere(out Vector3 center, out float _))
+            {
+                hasPreviousGrindProbeCenter = false;
+                return;
+            }
+
+            previousGrindProbeCenter = center;
+            hasPreviousGrindProbeCenter = true;
+        }
+
+        private static Vector3 ResolveGrindTravelTangent(Vector3 tangent, Vector3 velocity)
+        {
+            float projectedSpeed = Vector3.Dot(velocity, tangent);
+            return ResolveGrindTravelTangent(tangent, projectedSpeed);
+        }
+
+        private static Vector3 ResolveGrindTravelTangent(Vector3 tangent, float signedSpeed)
+        {
+            Vector3 normalizedTangent = tangent.sqrMagnitude > 0.0001f ? tangent.normalized : Vector3.forward;
+            if (Mathf.Approximately(signedSpeed, 0f))
+            {
+                float downhillBias = Vector3.Dot(normalizedTangent, Vector3.down);
+                return downhillBias >= 0f ? normalizedTangent : -normalizedTangent;
+            }
+
+            return signedSpeed >= 0f ? normalizedTangent : -normalizedTangent;
+        }
+
         private void UpdateActualVerticalSpeed()
         {
             if (Time.deltaTime <= Mathf.Epsilon)
@@ -1020,6 +1510,17 @@ namespace Race.Player
             wallRideContactOffset = movementProfile.WallRideContactOffset;
             wallRideProbeDistance = movementProfile.WallRideProbeDistance;
             wallRideEntryUpwardBoost = movementProfile.WallRideEntryUpwardBoost;
+            grindMask = movementProfile.GrindMask;
+            grindProbeDistance = movementProfile.GrindProbeDistance;
+            grindJumpHeight = movementProfile.GrindJumpHeight;
+            grindEntrySpeedBoost = movementProfile.GrindEntrySpeedBoost;
+            grindGravityScale = movementProfile.GrindGravityScale;
+            grindSpeedDrag = movementProfile.GrindSpeedDrag;
+            grindMagnetism = movementProfile.GrindMagnetism;
+            grindDetachDistance = movementProfile.GrindDetachDistance;
+            grindAirborneReattachTime = movementProfile.GrindAirborneReattachTime;
+            grindAirborneReattachDistance = movementProfile.GrindAirborneReattachDistance;
+            grindAirControlDetachThreshold = movementProfile.GrindAirControlDetachThreshold;
             traversalActivationWindow = movementProfile.TraversalActivationWindow;
         }
 
