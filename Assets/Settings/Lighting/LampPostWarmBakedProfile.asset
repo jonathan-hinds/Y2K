@@ -15,7 +15,7 @@ MonoBehaviour:
   lightType: 2
   lightColor: {r: 1, g: 0.8, b: 0.58, a: 1}
   intensity: 6
-  range: 10
+  range: 25
   indirectMultiplier: 1
   bakeType: 2
   shadows: 0
