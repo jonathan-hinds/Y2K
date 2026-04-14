@@ -15,6 +15,8 @@ namespace Race.Player
         [SerializeField] private float diagonalDetectionThreshold = 0.2f;
         [SerializeField] private float diagonalStrafeMagnitudeMultiplier = 1f;
 
+        public PlayerAnimationState CurrentState { get; private set; }
+
         private void Awake()
         {
             if (playerMotor == null)
@@ -97,6 +99,7 @@ namespace Race.Player
                 animationVerticalSpeed,
                 animationJumpPhase);
 
+            CurrentState = animationState;
             playerAnimator.ApplyState(animationState, animationDampTime, verticalSpeedDampTime);
         }
 

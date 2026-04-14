@@ -119,6 +119,46 @@ namespace Race.Player
         public event System.Action JumpReleased;
         public event System.Action Landed;
 
+        public void SnapToPose(Vector3 position, Quaternion rotation)
+        {
+            bool restoreCharacterController = characterController != null && characterController.enabled;
+            if (restoreCharacterController)
+            {
+                characterController.enabled = false;
+            }
+
+            transform.SetPositionAndRotation(position, rotation);
+
+            if (restoreCharacterController)
+            {
+                characterController.enabled = true;
+            }
+
+            facingForward = GetPlanarDirectionOrFallback(Vector3.ProjectOnPlane(rotation * Vector3.forward, Vector3.up), GetInitialFacingForward());
+            planarVelocity = Vector3.zero;
+            verticalVelocity = 0f;
+            actualVerticalSpeed = 0f;
+            previousPosition = position;
+            MoveInput = Vector2.zero;
+            LocalVelocity = Vector2.zero;
+            IsGrounded = false;
+            IsSlopeSliding = false;
+            isWallRiding = false;
+            jumpConsumed = false;
+            jumpPreparing = false;
+            jumpBufferTimer = 0f;
+            jumpPreparationTimer = 0f;
+            jumpPreparationUngroundedTimer = 0f;
+            activeWallCollider = null;
+            wallNormal = Vector3.zero;
+            pendingWallContact = default;
+
+            if (visualRoot != null && (slopeAlignment == null || !slopeAlignment.IsAlignmentActive))
+            {
+                visualRoot.rotation = Quaternion.LookRotation(facingForward, Vector3.up);
+            }
+        }
+
         private void Awake()
         {
             ApplyProfile();

@@ -26,6 +26,7 @@ namespace Race.Player
         public bool JumpPressedThisFrame { get; private set; }
         public bool JumpReleasedThisFrame { get; private set; }
         public Vector2 PointerScreenPosition => Mouse.current?.position.ReadValue() ?? Vector2.zero;
+        public bool InputBlocked { get; set; }
 
         private void Awake()
         {
@@ -40,6 +41,15 @@ namespace Race.Player
         {
             JumpPressedThisFrame = false;
             JumpReleasedThisFrame = false;
+
+            if (InputBlocked)
+            {
+                MoveInput = Vector2.zero;
+                LookInput = Vector2.zero;
+                SprintHeld = false;
+                JumpHeld = false;
+                return;
+            }
 
             if (moveAction != null)
             {
