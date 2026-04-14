@@ -1,0 +1,43 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: ExponentialFogVolume
+  m_Shader: {fileID: 4800000, guid: e2a5dce4aa0530b41997122a65fcf840, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs: []
+    m_Ints: []
+    m_Floats:
+    - _Density: 1.25
+    - _DensityPower: 1.5
+    - _DetailNoiseScale: 0.06
+    - _DetailNoiseStrength: 0.55
+    - _EdgeSoftness: 0.19
+    - _HeightFalloff: 1.25
+    - _HeightOffset: -0.2
+    - _MaxOpacity: 0.85
+    - _NoiseScale: 0.015
+    - _NoiseStrength: 1
+    - _WindSpeed: 0.75
+    m_Colors:
+    - _BaseColor: {r: 0.72, g: 0.8, b: 0.9, a: 0.8}
+    - _WindDirection: {r: 1, g: 0.35, b: 0, a: 0}
+  m_BuildTextureStacks: []
+  m_AllowLocking: 1

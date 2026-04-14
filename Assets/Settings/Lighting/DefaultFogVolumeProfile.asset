@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f1bef0de1d2a42e489ebbc6634254f55, type: 3}
+  m_Name: DefaultFogVolumeProfile
+  m_EditorClassIdentifier: 
+  fogColor: {r: 0.6808, g: 0.7548, b: 0.851, a: 0.7}
+  density: 0.18
+  densityPower: 1
+  maxOpacity: 0.95
+  heightFalloff: 0.015
+  heightOffset: -0.35
+  edgeSoftness: 0.2
+  noiseScale: 0.015
+  noiseStrength: 0.65
+  detailNoiseScale: 0.06
+  detailNoiseStrength: 0.35
+  windDirection: {x: 1, y: 0.35}
+  windSpeed: 0.75
