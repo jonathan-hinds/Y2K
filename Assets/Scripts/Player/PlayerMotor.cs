@@ -40,6 +40,7 @@ namespace Race.Player
         [SerializeField] private float jumpHeight = 10f;
         [SerializeField] private float coyoteTime = 0.1f;
         [SerializeField] private float jumpBufferTime = 0.12f;
+        [SerializeField, Min(0f)] private float jumpPreparationUngroundedTolerance = 0.08f;
         [SerializeField] private float ascendingVelocityThreshold = 0.05f;
 
         [Header("References")]
@@ -85,6 +86,7 @@ namespace Race.Player
         private float coyoteTimer;
         private float jumpBufferTimer;
         private float jumpPreparationTimer;
+        private float jumpPreparationUngroundedTimer;
         private float lastGroundContactTime = float.NegativeInfinity;
         private bool jumpConsumed;
         private bool jumpPreparing;
@@ -291,6 +293,7 @@ namespace Race.Player
             jumpConsumed = true;
             jumpBufferTimer = 0f;
             jumpPreparationTimer = 0f;
+            jumpPreparationUngroundedTimer = 0f;
             jumpPreparing = true;
             verticalVelocity = groundedVerticalVelocity;
             jumpPhase = JumpPhase.JumpStart;
@@ -306,6 +309,8 @@ namespace Race.Player
             }
 
             jumpPreparing = false;
+            jumpPreparationTimer = 0f;
+            jumpPreparationUngroundedTimer = 0f;
             coyoteTimer = 0f;
             verticalVelocity = Mathf.Sqrt(2f * Mathf.Abs(gravity) * jumpHeight);
             JumpReleased?.Invoke();
@@ -316,11 +321,18 @@ namespace Race.Player
             if (jumpPreparing)
             {
                 jumpPreparationTimer += Time.deltaTime;
-                verticalVelocity = groundedVerticalVelocity;
-                return;
-            }
 
-            if (IsGrounded && verticalVelocity < 0f && !jumpConsumed)
+                if (IsGrounded)
+                {
+                    jumpPreparationUngroundedTimer = 0f;
+                    verticalVelocity = groundedVerticalVelocity;
+                }
+                else
+                {
+                    jumpPreparationUngroundedTimer += Time.deltaTime;
+                }
+            }
+            else if (IsGrounded && verticalVelocity < 0f && !jumpConsumed)
             {
                 verticalVelocity = groundedVerticalVelocity;
             }
@@ -339,10 +351,25 @@ namespace Race.Player
         private void ProcessLandingEvents(bool wasGroundedBeforeMove)
         {
             bool landedThisFrame = !wasGroundedBeforeMove && IsGrounded;
+            bool shouldPreservePreparedJump = landedThisFrame
+                && jumpPreparing
+                && input != null
+                && input.JumpHeld
+                && jumpPreparationUngroundedTimer <= jumpPreparationUngroundedTolerance;
+
+            if (shouldPreservePreparedJump)
+            {
+                jumpPreparationUngroundedTimer = 0f;
+                verticalVelocity = groundedVerticalVelocity;
+                return;
+            }
+
             if (landedThisFrame)
             {
                 jumpConsumed = false;
                 jumpPreparing = false;
+                jumpPreparationTimer = 0f;
+                jumpPreparationUngroundedTimer = 0f;
                 verticalVelocity = groundedVerticalVelocity;
                 Landed?.Invoke();
             }
@@ -773,6 +800,7 @@ namespace Race.Player
 
             jumpPreparing = false;
             jumpPreparationTimer = 0f;
+            jumpPreparationUngroundedTimer = 0f;
         }
 
         private bool TryGetProbeWallContact(Collider collider, out Vector3 contactNormal, out Vector3 contactPoint, out float penetrationDepth)
@@ -846,6 +874,7 @@ namespace Race.Player
             jumpHeight = movementProfile.JumpHeight;
             coyoteTime = movementProfile.CoyoteTime;
             jumpBufferTime = movementProfile.JumpBufferTime;
+            jumpPreparationUngroundedTolerance = movementProfile.JumpPreparationUngroundedTolerance;
             ascendingVelocityThreshold = movementProfile.AscendingVelocityThreshold;
             groundProbeDistance = movementProfile.GroundProbeDistance;
             groundProbeMask = movementProfile.GroundProbeMask;

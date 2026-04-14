@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Artilery01SplineProfile
   m_EditorClassIdentifier: 
   <SegmentPrefab>k__BackingField: {fileID: 5494953067878716069, guid: f0cbfbd2740995c4bacd2194be949db9, type: 3}
-  <SegmentSpacing>k__BackingField: 19
+  <SegmentSpacing>k__BackingField: 18
   <ForwardAxis>k__BackingField: 1
   <UpAxis>k__BackingField: 2
   <CrossSectionRollDegrees>k__BackingField: 90

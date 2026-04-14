@@ -23,6 +23,7 @@ MonoBehaviour:
   <JumpHeight>k__BackingField: 10
   <CoyoteTime>k__BackingField: 0.14
   <JumpBufferTime>k__BackingField: 0.15
+  <JumpPreparationUngroundedTolerance>k__BackingField: 0.08
   <AscendingVelocityThreshold>k__BackingField: 0.1
   <GroundProbeDistance>k__BackingField: 0.9
   <GroundProbeMask>k__BackingField:

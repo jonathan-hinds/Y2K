@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   fogEnabled: 1
   fogMode: 3
-  fogColor: {r: 0.42, g: 0.48, b: 0.56, a: 1}
+  fogColor: {r: 0.248, g: 0.23180707, b: 0.119536, a: 1}
   fogDensity: 0.02
   linearStart: 0
   linearEnd: 300

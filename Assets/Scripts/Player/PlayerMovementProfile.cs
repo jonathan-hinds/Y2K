@@ -19,6 +19,7 @@ namespace Race.Player
         [field: SerializeField, Min(0f)] public float JumpHeight { get; private set; } = 10f;
         [field: SerializeField, Min(0f)] public float CoyoteTime { get; private set; } = 0.14f;
         [field: SerializeField, Min(0f)] public float JumpBufferTime { get; private set; } = 0.15f;
+        [field: SerializeField, Min(0f)] public float JumpPreparationUngroundedTolerance { get; private set; } = 0.08f;
         [field: SerializeField, Min(0f)] public float AscendingVelocityThreshold { get; private set; } = 0.05f;
 
         [field: Header("Grounding")]
