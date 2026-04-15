@@ -140,6 +140,7 @@ namespace Race.Player
 
         public Vector3 WorldVelocity => new Vector3(planarVelocity.x, verticalVelocity, planarVelocity.z);
         public float PlanarSpeed => planarVelocity.magnitude;
+        public float ConfiguredMaxPlanarSpeed => sprintSpeed;
         public Vector2 MoveInput { get; private set; }
         public Vector2 LocalVelocity { get; private set; }
         public bool IsGrounded { get; private set; }

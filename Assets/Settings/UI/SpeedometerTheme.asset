@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6b4e42250ad924041a3875c2a443518d, type: 3}
+  m_Name: SpeedometerTheme
+  m_EditorClassIdentifier: 
+  <SpeedFont>k__BackingField: {fileID: 12800000, guid: 7f427937e99acc74e8fe6e25ca7ce384, type: 3}
+  <NumberColor>k__BackingField: {r: 1, g: 1, b: 1, a: 1}
+  <NumberOutlineColor>k__BackingField: {r: 0, g: 0, b: 0, a: 1}
+  <NumberOutlineWidth>k__BackingField: 0.6
+  <NumberFontSize>k__BackingField: 72
+  <NumberOffset>k__BackingField: {x: -2, y: -10}
+  <TextureSize>k__BackingField: {x: 128, y: 88}
+  <EmptyColor>k__BackingField: {r: 0.16, g: 0.02, b: 0.02, a: 0.92}
+  <LowSpeedColor>k__BackingField: {r: 0.18, g: 0.86, b: 0.3, a: 1}
+  <MidSpeedColor>k__BackingField: {r: 0.95, g: 0.88, b: 0.2, a: 1}
+  <HighSpeedColor>k__BackingField: {r: 0.93, g: 0.19, b: 0.1, a: 1}
+  <MaxSpeedColor>k__BackingField: {r: 0.03, g: 0.03, b: 0.03, a: 1}
+  <YellowThreshold>k__BackingField: 0.42
+  <RedThreshold>k__BackingField: 0.78
+  <ResponseSharpness>k__BackingField: 10
