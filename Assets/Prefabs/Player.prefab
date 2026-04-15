@@ -1470,6 +1470,7 @@ GameObject:
   - component: {fileID: 7045482775358264357}
   - component: {fileID: 7059153748094447562}
   - component: {fileID: 1072341499499355871}
+  - component: {fileID: 6124802256554501887}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -1974,6 +1975,39 @@ MonoBehaviour:
   popupLayer: {fileID: 2836085517591730077}
   floatingScorePrefab: {fileID: 329762379248287163, guid: 74ca44fadcdaa4541ba8c1d5052bb304, type: 3}
   popupFontSizeMultiplier: 3.28
+--- !u!114 &6124802256554501887
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5431089977585190902}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8f7c2ce7196442a2a2ff7a73ad5d0f5f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerMotor: {fileID: 7031008020850835324}
+  playerRig: {fileID: 8485774490374071881}
+  scoreController: {fileID: 7059153748094447562}
+  inputReader: {fileID: 6673398957380446935}
+  characterController: {fileID: 2408968690601130865}
+  animationDriver: {fileID: 1175574389487572120}
+  playerAnimator: {fileID: 1983824599159642976}
+  footIkController: {fileID: 9214299497625077272}
+  slopeAlignment: {fileID: 6671156226737327341}
+  groundingModeController: {fileID: 8441881798243643583}
+  flipSpeedDegreesPerSecond: 540
+  verticalInputThreshold: 0.5
+  landedAngleTolerance: 15
+  crashDurationSeconds: 1.35
+  crashImpulse: 5.5
+  respawnHeightOffset: 0.2
+  respawnProbeHeight: 3
+  respawnProbeDistance: 8
+  respawnGroundMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
   popupHorizontalVelocity: 16
   popupUpwardVelocity: 40
   popupLocalOffset: {x: 0, y: 18}

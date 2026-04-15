@@ -12,12 +12,14 @@ namespace Race.Player
         [SerializeField] private string lookActionName = "Look";
         [SerializeField] private string sprintActionName = "Sprint";
         [SerializeField] private string jumpActionName = "Jump";
+        [SerializeField] private string trickModifierActionName = "Click";
 
         private PlayerInput playerInput;
         private InputAction moveAction;
         private InputAction lookAction;
         private InputAction sprintAction;
         private InputAction jumpAction;
+        private InputAction trickModifierAction;
 
         public Vector2 MoveInput { get; private set; }
         public Vector2 LookInput { get; private set; }
@@ -25,6 +27,7 @@ namespace Race.Player
         public bool JumpHeld { get; private set; }
         public bool JumpPressedThisFrame { get; private set; }
         public bool JumpReleasedThisFrame { get; private set; }
+        public bool TrickModifierHeld { get; private set; }
         public Vector2 PointerScreenPosition => Mouse.current?.position.ReadValue() ?? Vector2.zero;
         public bool InputBlocked { get; set; }
 
@@ -35,6 +38,7 @@ namespace Race.Player
             lookAction = playerInput.actions[lookActionName];
             sprintAction = playerInput.actions[sprintActionName];
             jumpAction = playerInput.actions[jumpActionName];
+            trickModifierAction = playerInput.actions[trickModifierActionName];
         }
 
         private void Update()
@@ -48,6 +52,7 @@ namespace Race.Player
                 LookInput = Vector2.zero;
                 SprintHeld = false;
                 JumpHeld = false;
+                TrickModifierHeld = false;
                 return;
             }
 
@@ -76,6 +81,8 @@ namespace Race.Player
             {
                 JumpHeld = false;
             }
+
+            TrickModifierHeld = trickModifierAction != null && trickModifierAction.IsPressed();
         }
     }
 }

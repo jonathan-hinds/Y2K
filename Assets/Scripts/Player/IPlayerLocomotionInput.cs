@@ -10,6 +10,7 @@ namespace Race.Player
         bool JumpHeld { get; }
         bool JumpPressedThisFrame { get; }
         bool JumpReleasedThisFrame { get; }
+        bool TrickModifierHeld { get; }
         Vector2 PointerScreenPosition { get; }
     }
 }

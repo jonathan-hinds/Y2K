@@ -46,6 +46,12 @@ namespace Race.Player
             ResolveCameraTarget();
         }
 
+        private void OnEnable()
+        {
+            CacheReferences();
+            ResolveCameraTarget();
+        }
+
         private void LateUpdate()
         {
             if (targetMotor == null || cameraTarget == null)
@@ -59,6 +65,19 @@ namespace Race.Player
             float positionBlend = 1f - Mathf.Exp(-sharpness * Time.deltaTime);
 
             cameraTarget.position = Vector3.Lerp(cameraTarget.position, desiredPosition, positionBlend);
+        }
+
+        public void SnapImmediately()
+        {
+            CacheReferences();
+            ResolveCameraTarget();
+            if (targetMotor == null || cameraTarget == null)
+            {
+                return;
+            }
+
+            Vector3 desiredForward = GetDesiredHeading();
+            cameraTarget.position = GetDesiredPosition(desiredForward);
         }
 
         private void CacheReferences()

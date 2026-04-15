@@ -18,3 +18,13 @@ MonoBehaviour:
     pointsPerAward: 25
     awardIntervalSeconds: 0.2
     popupLocalOffset: {x: 0, y: 0.15, z: 0}
+  - trickId: flip_forward
+    displayName: Forward Flip
+    pointsPerAward: 100
+    awardIntervalSeconds: 0.2
+    popupLocalOffset: {x: 0, y: 0.15, z: 0}
+  - trickId: flip_backward
+    displayName: Backward Flip
+    pointsPerAward: 100
+    awardIntervalSeconds: 0.2
+    popupLocalOffset: {x: 0, y: 0.15, z: 0}
