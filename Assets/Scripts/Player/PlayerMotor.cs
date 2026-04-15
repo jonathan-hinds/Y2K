@@ -133,6 +133,7 @@ namespace Race.Player
         private Vector3 grindTangent = Vector3.forward;
         private Vector3 grindUp = Vector3.up;
         private Vector3 previousGrindProbeCenter;
+        private Vector3 lastGrindProbeTravelDelta;
         private bool hasPreviousGrindProbeCenter;
         private readonly Collider[] grindProbeResults = new Collider[64];
         private readonly TimedTraversalInputGate wallRideInputGate = new();
@@ -205,6 +206,7 @@ namespace Race.Player
             isGrindingAttached = false;
             grindTangent = Vector3.forward;
             grindUp = Vector3.up;
+            lastGrindProbeTravelDelta = Vector3.zero;
             hasPreviousGrindProbeCenter = false;
             wallRideInputGate.Reset();
 
@@ -439,9 +441,7 @@ namespace Race.Player
             coyoteTimer = 0f;
             float selectedJumpHeight = releasingFromWallRide
                 ? wallJumpHeight
-                : releasingFromGrind
-                    ? grindJumpHeight
-                    : jumpHeight;
+                : jumpHeight;
             if (releasingFromWallRide)
             {
                 EndWallRide();
@@ -698,6 +698,10 @@ namespace Race.Player
                 return;
             }
 
+            lastGrindProbeTravelDelta = hasPreviousGrindProbeCenter
+                ? probeCenter - previousGrindProbeCenter
+                : Vector3.zero;
+
             float searchRadius = Mathf.Max(0.01f, probeRadius + grindProbeDistance);
             int nearbyColliderCount = Physics.OverlapSphereNonAlloc(
                 probeCenter,
@@ -834,7 +838,7 @@ namespace Race.Player
             }
 
             activeGrindT = sample.T;
-            grindTangent = ResolveGrindTravelTangent(sample.Tangent, grindSignedSpeed);
+            grindTangent = GetCanonicalGrindTangent(sample.Tangent);
             grindUp = sample.Up;
 
             if (sample.DistanceToRail <= grindDetachDistance)
@@ -872,7 +876,7 @@ namespace Race.Player
             }
 
             bool wasWallRiding = isWallRiding;
-            if (!CanWallRide(out string rejectionReason) || (!wasWallRiding && !TryConsumeWallRideStartInput(out rejectionReason)))
+            if (!CanWallRide(out string rejectionReason))
             {
                 LogWallRideState($"blocked {rejectionReason}");
                 EndWallRide();
@@ -941,6 +945,13 @@ namespace Race.Player
             coyoteTimer = coyoteTime;
         }
 
+        private void ResetJumpForGrinding()
+        {
+            jumpConsumed = false;
+            jumpBufferTimer = 0f;
+            coyoteTimer = 0f;
+        }
+
         private void TryConsumeBufferedWallJump()
         {
             bool canUseBufferedJump = jumpBufferTimer > 0f;
@@ -971,19 +982,25 @@ namespace Race.Player
             EndWallRide();
             activeGrindRail = rail;
             activeGrindT = sample.T;
-            grindTangent = ResolveGrindTravelTangent(sample.Tangent, WorldVelocity);
+            Vector3 splineTangent = sample.Tangent.sqrMagnitude > 0.0001f ? sample.Tangent.normalized : Vector3.forward;
+            float entryDirectionSign = ResolveGrindEntryDirectionSign(rail, sample, splineTangent);
             grindUp = sample.Up;
-            float entryVelocity = Vector3.Dot(WorldVelocity, grindTangent);
-            grindSignedSpeed = entryVelocity + Mathf.Sign(entryVelocity == 0f ? Vector3.Dot(grindTangent, Vector3.down) : entryVelocity)
+            float entryVelocity = Vector3.Dot(WorldVelocity, splineTangent);
+            float signedEntryVelocity = Mathf.Abs(entryVelocity) > 0.01f
+                ? entryVelocity
+                : entryDirectionSign;
+            grindSignedSpeed = signedEntryVelocity + Mathf.Sign(signedEntryVelocity)
                 * (grindEntrySpeedBoost + rail.EntrySpeedBoost);
             if (Mathf.Abs(grindSignedSpeed) <= 0.01f)
             {
-                grindSignedSpeed = Mathf.Sign(Vector3.Dot(grindTangent, Vector3.down)) * Mathf.Max(grindEntrySpeedBoost + rail.EntrySpeedBoost, 0.01f);
+                grindSignedSpeed = entryDirectionSign * Mathf.Max(grindEntrySpeedBoost + rail.EntrySpeedBoost, 0.01f);
             }
 
+            grindTangent = splineTangent;
             isGrinding = true;
             isGrindingAttached = true;
             grindAirborneTimer = 0f;
+            ResetJumpForGrinding();
             SnapToGrindMount(sample);
         }
 
@@ -1018,19 +1035,8 @@ namespace Race.Player
                 return;
             }
 
-            if (jumpPreparing)
-            {
-                planarVelocity = Vector3.zero;
-                verticalVelocity = groundedVerticalVelocity;
-                return;
-            }
-
-            if (input != null && input.JumpPressedThisFrame)
-            {
-                jumpBufferTimer = jumpBufferTime;
-                StartJumpPreparation();
-                return;
-            }
+            HandleJumpInput();
+            UpdateGrindingJumpPreparation();
 
             if (!isGrindingAttached)
             {
@@ -1040,11 +1046,11 @@ namespace Race.Player
 
             if (!activeGrindRail.TryAdvance(activeGrindT, grindSignedSpeed * Time.deltaTime, out GrindRail.Sample nextSample, out bool reachedEnd))
             {
-                EndGrinding(false);
+                EndGrinding(true);
                 return;
             }
 
-            grindTangent = ResolveGrindTravelTangent(nextSample.Tangent, grindSignedSpeed);
+            grindTangent = GetCanonicalGrindTangent(nextSample.Tangent);
             grindUp = nextSample.Up;
             float gravityAlongRail = Vector3.Dot(Vector3.down * Mathf.Abs(gravity) * grindGravityScale, grindTangent);
             grindSignedSpeed += gravityAlongRail * Time.deltaTime;
@@ -1053,7 +1059,7 @@ namespace Race.Player
 
             if (reachedEnd || activeGrindRail.IsNearEnd(activeGrindT))
             {
-                EndGrinding(false);
+                EndGrinding(true);
                 return;
             }
 
@@ -1097,7 +1103,7 @@ namespace Race.Player
             isGrindingAttached = true;
             grindAirborneTimer = 0f;
             activeGrindT = sample.T;
-            grindTangent = ResolveGrindTravelTangent(sample.Tangent, grindSignedSpeed);
+            grindTangent = GetCanonicalGrindTangent(sample.Tangent);
             grindUp = sample.Up;
             SnapToGrindMount(sample);
         }
@@ -1118,7 +1124,7 @@ namespace Race.Player
             }
 
             activeGrindT = sample.T;
-            grindTangent = ResolveGrindTravelTangent(sample.Tangent, grindSignedSpeed);
+            grindTangent = GetCanonicalGrindTangent(sample.Tangent);
             grindUp = sample.Up;
             if (sample.DistanceToRail > grindDetachDistance)
             {
@@ -1151,19 +1157,23 @@ namespace Race.Player
                 return false;
             }
 
-            return true;
+            return verticalVelocity <= ascendingVelocityThreshold;
+        }
+
+        private void UpdateGrindingJumpPreparation()
+        {
+            if (!jumpPreparing || IsGrounded)
+            {
+                return;
+            }
+
+            jumpPreparationTimer += Time.deltaTime;
+            jumpPreparationUngroundedTimer += Time.deltaTime;
         }
 
         private void UpdateWallRideInputWindow()
         {
             wallRideInputGate.Configure(traversalActivationWindow);
-
-            if (isWallRiding || isGrinding || !pendingWallContact.IsValid)
-            {
-                return;
-            }
-
-            wallRideInputGate.RegisterOpportunity(GetWallRideOpportunityId(pendingWallContact.Collider));
         }
 
         private bool CanWallRide(out string rejectionReason)
@@ -1429,24 +1439,74 @@ namespace Race.Player
         {
             if (grindProbe == null)
             {
+                lastGrindProbeTravelDelta = Vector3.zero;
                 hasPreviousGrindProbeCenter = false;
                 return;
             }
 
             if (!grindProbe.TryGetWorldSphere(out Vector3 center, out float _))
             {
+                lastGrindProbeTravelDelta = Vector3.zero;
                 hasPreviousGrindProbeCenter = false;
                 return;
             }
 
+            lastGrindProbeTravelDelta = hasPreviousGrindProbeCenter
+                ? center - previousGrindProbeCenter
+                : Vector3.zero;
             previousGrindProbeCenter = center;
             hasPreviousGrindProbeCenter = true;
+        }
+
+        private static Vector3 GetCanonicalGrindTangent(Vector3 tangent)
+        {
+            return tangent.sqrMagnitude > 0.0001f ? tangent.normalized : Vector3.forward;
         }
 
         private static Vector3 ResolveGrindTravelTangent(Vector3 tangent, Vector3 velocity)
         {
             float projectedSpeed = Vector3.Dot(velocity, tangent);
             return ResolveGrindTravelTangent(tangent, projectedSpeed);
+        }
+
+        private float ResolveGrindEntryDirectionSign(GrindRail rail, GrindRail.Sample sample, Vector3 splineTangent)
+        {
+            if (rail != null
+                && hasPreviousGrindProbeCenter
+                && rail.TryGetNearestSample(previousGrindProbeCenter, out GrindRail.Sample previousSample))
+            {
+                float sampleDelta = sample.T - previousSample.T;
+                if (Mathf.Abs(sampleDelta) > 0.0005f)
+                {
+                    return Mathf.Sign(sampleDelta);
+                }
+            }
+
+            float probeTravelAlignment = Vector3.Dot(lastGrindProbeTravelDelta, splineTangent);
+            if (Mathf.Abs(probeTravelAlignment) > 0.0001f)
+            {
+                return Mathf.Sign(probeTravelAlignment);
+            }
+
+            float planarVelocityAlignment = Vector3.Dot(Vector3.ProjectOnPlane(planarVelocity, Vector3.up), splineTangent);
+            if (Mathf.Abs(planarVelocityAlignment) > 0.01f)
+            {
+                return Mathf.Sign(planarVelocityAlignment);
+            }
+
+            float velocityAlignment = Vector3.Dot(WorldVelocity, splineTangent);
+            if (Mathf.Abs(velocityAlignment) > 0.01f)
+            {
+                return Mathf.Sign(velocityAlignment);
+            }
+
+            float facingAlignment = Vector3.Dot(facingForward, splineTangent);
+            if (Mathf.Abs(facingAlignment) > 0.0001f)
+            {
+                return Mathf.Sign(facingAlignment);
+            }
+
+            return Vector3.Dot(splineTangent, Vector3.down) >= 0f ? 1f : -1f;
         }
 
         private static Vector3 ResolveGrindTravelTangent(Vector3 tangent, float signedSpeed)
