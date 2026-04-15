@@ -1973,7 +1973,7 @@ MonoBehaviour:
   theme: {fileID: 11400000, guid: cc18e17f5e0e0584f9ab4a4ed1eac414, type: 2}
   popupLayer: {fileID: 2836085517591730077}
   floatingScorePrefab: {fileID: 329762379248287163, guid: 74ca44fadcdaa4541ba8c1d5052bb304, type: 3}
-  popupFontSizeMultiplier: 0.82
+  popupFontSizeMultiplier: 3.28
   popupHorizontalVelocity: 16
   popupUpwardVelocity: 40
   popupLocalOffset: {x: 0, y: 18}

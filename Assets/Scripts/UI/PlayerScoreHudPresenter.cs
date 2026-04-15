@@ -57,9 +57,17 @@ namespace Race.UI
 
         private void Update()
         {
-            if (boundController == null && autoBindLocalPlayer)
+            if (autoBindLocalPlayer)
             {
-                TryBindController();
+                if (!HasValidBinding())
+                {
+                    BindController(null);
+                }
+
+                if (boundController == null)
+                {
+                    TryBindController();
+                }
             }
 
             UpdateDisplayedScore();
@@ -86,16 +94,7 @@ namespace Race.UI
             for (int index = 0; index < controllers.Length; index++)
             {
                 PlayerTrickScoreController candidate = controllers[index];
-                if (candidate == null || !candidate.isActiveAndEnabled)
-                {
-                    continue;
-                }
-
-                bool isOfflineLocal = !candidate.IsSpawned
-                    && candidate.PlayerMotor != null
-                    && candidate.PlayerMotor.enabled
-                    && candidate.PlayerMotor.gameObject.activeInHierarchy;
-                if (!candidate.IsOwner && !isOfflineLocal)
+                if (!IsLocalControllerCandidate(candidate))
                 {
                     continue;
                 }
@@ -103,6 +102,26 @@ namespace Race.UI
                 BindController(candidate);
                 return;
             }
+        }
+
+        private bool HasValidBinding()
+        {
+            return IsLocalControllerCandidate(boundController);
+        }
+
+        private static bool IsLocalControllerCandidate(PlayerTrickScoreController candidate)
+        {
+            if (candidate == null || !candidate.isActiveAndEnabled)
+            {
+                return false;
+            }
+
+            bool isOfflineLocal = !candidate.IsSpawned
+                && candidate.PlayerMotor != null
+                && candidate.PlayerMotor.enabled
+                && candidate.PlayerMotor.gameObject.activeInHierarchy;
+
+            return candidate.IsOwner || isOfflineLocal;
         }
 
         private void BindController(PlayerTrickScoreController controller)
