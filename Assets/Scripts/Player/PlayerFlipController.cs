@@ -276,7 +276,7 @@ namespace Race.Player
             }
 
             int landedFlipCount = Mathf.Max(0, Mathf.RoundToInt(accumulatedRotationDegrees / 360f));
-            bool landedUpright = Mathf.Abs(Mathf.DeltaAngle(visualPitchDegrees, 0f)) <= landedAngleTolerance;
+            bool landedUpright = FlipLandingFrameResolver.IsLandingAligned(playerMotor, flipPivot, landedAngleTolerance);
             bool landedCleanly = landedUpright && landedFlipCount > 0;
             if (landedCleanly)
             {
@@ -713,6 +713,107 @@ namespace Race.Player
         private static float DequantizePitch(short serializedPitch)
         {
             return serializedPitch / 100f;
+        }
+    }
+
+    internal static class FlipLandingFrameResolver
+    {
+        private const float MinimumPlanarSpeed = 0.5f;
+
+        public static bool IsLandingAligned(PlayerMotor playerMotor, Transform flipPivot, float angleToleranceDegrees)
+        {
+            if (playerMotor == null || flipPivot == null)
+            {
+                return false;
+            }
+
+            LandingFrame landingFrame = Resolve(playerMotor);
+            float landingErrorDegrees = Vector3.Angle(flipPivot.up, landingFrame.Up);
+            return landingErrorDegrees <= Mathf.Max(0f, angleToleranceDegrees);
+        }
+
+        private static LandingFrame Resolve(PlayerMotor playerMotor)
+        {
+            Vector3 travelForward = ResolveTravelForward(playerMotor);
+            Vector3 groundNormal = ResolveGroundNormal(playerMotor);
+            Vector3 travelRight = Vector3.Cross(Vector3.up, travelForward);
+            if (travelRight.sqrMagnitude <= 0.0001f)
+            {
+                return CreateFlatFrame(travelForward);
+            }
+
+            travelRight.Normalize();
+
+            // Remove side-bank from the landing up vector so traversing across a hill
+            // behaves like a flat landing while uphill/downhill motion keeps the slope pitch.
+            Vector3 slopeAwareUp = Vector3.ProjectOnPlane(groundNormal, travelRight);
+            if (slopeAwareUp.sqrMagnitude <= 0.0001f || slopeAwareUp.y <= 0.0001f)
+            {
+                return CreateFlatFrame(travelForward);
+            }
+
+            Vector3 up = slopeAwareUp.normalized;
+            Vector3 forward = Vector3.ProjectOnPlane(travelForward, up);
+            if (forward.sqrMagnitude <= 0.0001f)
+            {
+                return CreateFlatFrame(travelForward);
+            }
+
+            return new LandingFrame(forward.normalized, up);
+        }
+
+        private static Vector3 ResolveTravelForward(PlayerMotor playerMotor)
+        {
+            Vector3 planarVelocity = Vector3.ProjectOnPlane(playerMotor.WorldVelocity, Vector3.up);
+            if (planarVelocity.sqrMagnitude >= MinimumPlanarSpeed * MinimumPlanarSpeed)
+            {
+                return planarVelocity.normalized;
+            }
+
+            Vector3 facingForward = Vector3.ProjectOnPlane(playerMotor.FacingForward, Vector3.up);
+            if (facingForward.sqrMagnitude > 0.0001f)
+            {
+                return facingForward.normalized;
+            }
+
+            return Vector3.forward;
+        }
+
+        private static Vector3 ResolveGroundNormal(PlayerMotor playerMotor)
+        {
+            Vector3 normal = playerMotor.HasStableGroundContact
+                ? playerMotor.StableGroundNormal
+                : playerMotor.GroundNormal;
+
+            if (normal.sqrMagnitude <= 0.0001f)
+            {
+                return Vector3.up;
+            }
+
+            return normal.normalized;
+        }
+
+        private static LandingFrame CreateFlatFrame(Vector3 forward)
+        {
+            Vector3 flattenedForward = Vector3.ProjectOnPlane(forward, Vector3.up);
+            if (flattenedForward.sqrMagnitude <= 0.0001f)
+            {
+                flattenedForward = Vector3.forward;
+            }
+
+            return new LandingFrame(flattenedForward.normalized, Vector3.up);
+        }
+
+        private readonly struct LandingFrame
+        {
+            public LandingFrame(Vector3 forward, Vector3 up)
+            {
+                Forward = forward;
+                Up = up;
+            }
+
+            public Vector3 Forward { get; }
+            public Vector3 Up { get; }
         }
     }
 }

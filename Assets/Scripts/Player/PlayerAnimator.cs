@@ -26,6 +26,7 @@ namespace Race.Player
 
         public Animator Animator => animator;
         public PlayerAnimationProfile AnimationProfile => animationProfile;
+        public PlayerAnimationState CurrentState { get; private set; }
 
         private void Awake()
         {
@@ -46,6 +47,7 @@ namespace Race.Player
                 return;
             }
 
+            CurrentState = state;
             animator.SetFloat(MoveXHash, state.MoveX, animationDampTime, Time.deltaTime);
             animator.SetFloat(MoveYHash, state.MoveY, animationDampTime, Time.deltaTime);
             animator.SetFloat(MoveMagnitudeHash, state.MoveMagnitude, animationDampTime, Time.deltaTime);

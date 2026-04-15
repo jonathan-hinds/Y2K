@@ -10,6 +10,8 @@ namespace Race.Player
             public Transform Transform;
             public Rigidbody Rigidbody;
             public Collider Collider;
+            public CharacterJoint Joint;
+            public Rigidbody OriginalConnectedBody;
             public Vector3 InitialLocalPosition;
             public Quaternion InitialLocalRotation;
         }
@@ -45,6 +47,7 @@ namespace Race.Player
             Vector3 forceDirection = impulseDirection.sqrMagnitude > 0.0001f
                 ? impulseDirection.normalized
                 : Vector3.forward;
+            Vector3 scatterOrigin = parts[0].Transform != null ? parts[0].Transform.position : Vector3.zero;
 
             for (int index = 0; index < parts.Count; index++)
             {
@@ -63,12 +66,32 @@ namespace Race.Player
                 part.Rigidbody.detectCollisions = true;
                 part.Rigidbody.linearVelocity = inheritedVelocity;
                 part.Rigidbody.angularVelocity = Vector3.zero;
-            }
 
-            if (parts[0].Rigidbody != null && impulseStrength > Mathf.Epsilon)
-            {
-                parts[0].Rigidbody.AddForce(forceDirection * impulseStrength, ForceMode.Impulse);
-                parts[0].Rigidbody.AddTorque(Vector3.Cross(Vector3.up, forceDirection) * (impulseStrength * 0.35f), ForceMode.Impulse);
+                if (part.Joint != null)
+                {
+                    part.Joint.connectedBody = null;
+                }
+
+                if (impulseStrength <= Mathf.Epsilon)
+                {
+                    continue;
+                }
+
+                Vector3 partPosition = part.Transform != null ? part.Transform.position : scatterOrigin;
+                Vector3 outwardDirection = (partPosition - scatterOrigin);
+                outwardDirection = Vector3.ProjectOnPlane(outwardDirection, Vector3.up * -1f);
+                if (outwardDirection.sqrMagnitude <= 0.0001f)
+                {
+                    outwardDirection = Random.onUnitSphere;
+                }
+
+                outwardDirection.Normalize();
+                Vector3 scatterDirection = (forceDirection * 0.55f)
+                    + (outwardDirection * 0.85f)
+                    + (Vector3.up * 0.35f);
+
+                part.Rigidbody.AddForce(scatterDirection.normalized * impulseStrength, ForceMode.Impulse);
+                part.Rigidbody.AddTorque(Random.onUnitSphere * (impulseStrength * 0.45f), ForceMode.Impulse);
             }
         }
 
@@ -93,6 +116,13 @@ namespace Race.Player
                 if (part.Collider != null)
                 {
                     part.Collider.enabled = false;
+                }
+
+                if (part.Joint != null)
+                {
+                    part.Joint.connectedBody = part.Joint.transform.parent != null
+                        ? part.OriginalConnectedBody
+                        : null;
                 }
 
                 if (part.Transform != null)
@@ -202,9 +232,10 @@ namespace Race.Player
             Vector3 localTarget = ResolveLocalColliderTarget(boneTransform, childBone);
             ConfigureCapsule(capsule, localTarget);
 
+            CharacterJoint joint = boneTransform.GetComponent<CharacterJoint>();
             if (connectedBody != null)
             {
-                CharacterJoint joint = GetOrAddComponent<CharacterJoint>(boneTransform.gameObject);
+                joint = GetOrAddComponent<CharacterJoint>(boneTransform.gameObject);
                 joint.connectedBody = connectedBody;
                 joint.enablePreprocessing = false;
                 joint.enableCollision = false;
@@ -215,6 +246,8 @@ namespace Race.Player
                 Transform = boneTransform,
                 Rigidbody = rigidbody,
                 Collider = capsule,
+                Joint = joint,
+                OriginalConnectedBody = joint != null ? joint.connectedBody : null,
                 InitialLocalPosition = boneTransform.localPosition,
                 InitialLocalRotation = boneTransform.localRotation
             };
@@ -244,9 +277,10 @@ namespace Race.Player
             sphere.center = Vector3.zero;
             sphere.radius = EstimateHeadRadius(boneTransform);
 
+            CharacterJoint joint = boneTransform.GetComponent<CharacterJoint>();
             if (connectedBody != null)
             {
-                CharacterJoint joint = GetOrAddComponent<CharacterJoint>(boneTransform.gameObject);
+                joint = GetOrAddComponent<CharacterJoint>(boneTransform.gameObject);
                 joint.connectedBody = connectedBody;
                 joint.enablePreprocessing = false;
                 joint.enableCollision = false;
@@ -257,6 +291,8 @@ namespace Race.Player
                 Transform = boneTransform,
                 Rigidbody = rigidbody,
                 Collider = sphere,
+                Joint = joint,
+                OriginalConnectedBody = joint != null ? joint.connectedBody : null,
                 InitialLocalPosition = boneTransform.localPosition,
                 InitialLocalRotation = boneTransform.localRotation
             });
