@@ -325,6 +325,7 @@ namespace Race.Multiplayer
                 return;
             }
 
+            ApplyRemoteVisualState(visualState.Value, true);
             playerAnimator.TriggerJumpStart();
         }
 
@@ -335,6 +336,7 @@ namespace Race.Multiplayer
                 return;
             }
 
+            ApplyRemoteVisualState(visualState.Value, true);
             playerAnimator.TriggerJumpRelease();
         }
 
@@ -345,6 +347,7 @@ namespace Race.Multiplayer
                 return;
             }
 
+            ApplyRemoteVisualState(visualState.Value, true);
             playerAnimator.TriggerLand();
         }
 

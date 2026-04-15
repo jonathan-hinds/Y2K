@@ -20,9 +20,19 @@ namespace Race.Player
         [SerializeField] private Animator animator;
         [SerializeField] private PlayerAnimationProfile animationProfile;
 
+        private static readonly string[] WallRideSensitiveSourceClipNames =
+        {
+            PlayerAnimationProfile.IdleSourceClipName,
+            PlayerAnimationProfile.MoveLeftSourceClipName,
+            PlayerAnimationProfile.MoveRightSourceClipName,
+            PlayerAnimationProfile.JumpStartSourceClipName,
+            PlayerAnimationProfile.JumpHoldSourceClipName
+        };
+
         private readonly List<KeyValuePair<AnimationClip, AnimationClip>> overrides = new();
         private AnimatorOverrideController runtimeOverrideController;
         private PlayerRig playerRig;
+        private bool appliedWallRideVariant;
 
         public Animator Animator => animator;
         public PlayerAnimationProfile AnimationProfile => animationProfile;
@@ -47,6 +57,7 @@ namespace Race.Player
                 return;
             }
 
+            ApplyContextualOverrides(state, force: false);
             CurrentState = state;
             animator.SetFloat(MoveXHash, state.MoveX, animationDampTime, Time.deltaTime);
             animator.SetFloat(MoveYHash, state.MoveY, animationDampTime, Time.deltaTime);
@@ -144,10 +155,50 @@ namespace Race.Player
             }
 
             runtimeOverrideController.ApplyOverrides(overrides);
+            ApplyContextualOverrides(CurrentState, force: true);
 
             if (animator.runtimeAnimatorController != runtimeOverrideController)
             {
                 animator.runtimeAnimatorController = runtimeOverrideController;
+            }
+        }
+
+        private void ApplyContextualOverrides(PlayerAnimationState state, bool force)
+        {
+            if (runtimeOverrideController == null || animationProfile == null)
+            {
+                return;
+            }
+
+            bool useWallRideVariant = state.IsWallRiding;
+            if (!force && appliedWallRideVariant == useWallRideVariant)
+            {
+                return;
+            }
+
+            for (int i = 0; i < WallRideSensitiveSourceClipNames.Length; i++)
+            {
+                string sourceClipName = WallRideSensitiveSourceClipNames[i];
+                AnimationClip resolvedClip = animationProfile.ResolveClip(sourceClipName, useWallRideVariant);
+                UpdateOverride(sourceClipName, resolvedClip);
+            }
+
+            runtimeOverrideController.ApplyOverrides(overrides);
+            appliedWallRideVariant = useWallRideVariant;
+        }
+
+        private void UpdateOverride(string sourceClipName, AnimationClip resolvedClip)
+        {
+            for (int i = 0; i < overrides.Count; i++)
+            {
+                AnimationClip sourceClip = overrides[i].Key;
+                if (sourceClip == null || sourceClip.name != sourceClipName)
+                {
+                    continue;
+                }
+
+                overrides[i] = new KeyValuePair<AnimationClip, AnimationClip>(sourceClip, resolvedClip != null ? resolvedClip : sourceClip);
+                return;
             }
         }
 

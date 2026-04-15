@@ -8,6 +8,7 @@ namespace Race.Player
             float moveMagnitude,
             bool jumpHeld,
             bool isGrounded,
+            bool isWallRiding,
             float verticalSpeed,
             int jumpPhase)
         {
@@ -16,6 +17,7 @@ namespace Race.Player
             MoveMagnitude = moveMagnitude;
             JumpHeld = jumpHeld;
             IsGrounded = isGrounded;
+            IsWallRiding = isWallRiding;
             VerticalSpeed = verticalSpeed;
             JumpPhase = jumpPhase;
         }
@@ -25,6 +27,7 @@ namespace Race.Player
         public float MoveMagnitude { get; }
         public bool JumpHeld { get; }
         public bool IsGrounded { get; }
+        public bool IsWallRiding { get; }
         public float VerticalSpeed { get; }
         public int JumpPhase { get; }
     }

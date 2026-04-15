@@ -16,6 +16,11 @@ namespace Race.Player
         public const string JumpAscendingSourceClipName = "PLA_JumpAscending";
         public const string JumpDescendingSourceClipName = "PLA_JumpDescending";
         public const string LandingSourceClipName = "PLA_Landing";
+        public const string WallRideIdleSourceClipName = "PLA_WallRideIdle";
+        public const string WallRideLeftSourceClipName = "PLA_WallRideLeft";
+        public const string WallRideRightSourceClipName = "PLA_WallRideRight";
+        public const string WallRideJumpStartSourceClipName = "PLA_WallRideJumpStart";
+        public const string WallRideJumpHoldSourceClipName = "PLA_WallRideJumpHold";
 
         [SerializeField] private RuntimeAnimatorController baseController;
 
@@ -33,6 +38,13 @@ namespace Race.Player
         [SerializeField] private AnimationClip jumpAscendingClip;
         [SerializeField] private AnimationClip jumpDescendingClip;
         [SerializeField] private AnimationClip landingClip;
+
+        [Header("Wall Ride")]
+        [SerializeField] private AnimationClip wallRideIdleClip;
+        [SerializeField] private AnimationClip wallRideLeftClip;
+        [SerializeField] private AnimationClip wallRideRightClip;
+        [SerializeField] private AnimationClip wallRideJumpStartClip;
+        [SerializeField] private AnimationClip wallRideJumpHoldClip;
 
         [Header("Foot IK")]
         [SerializeField] private PlayerFootIkProfile footIkProfile;
@@ -55,10 +67,39 @@ namespace Race.Player
                 JumpAscendingSourceClipName => jumpAscendingClip,
                 JumpDescendingSourceClipName => jumpDescendingClip,
                 LandingSourceClipName => landingClip,
+                WallRideIdleSourceClipName => wallRideIdleClip,
+                WallRideLeftSourceClipName => wallRideLeftClip,
+                WallRideRightSourceClipName => wallRideRightClip,
+                WallRideJumpStartSourceClipName => wallRideJumpStartClip,
+                WallRideJumpHoldSourceClipName => wallRideJumpHoldClip,
                 _ => null
             };
 
             return clip != null;
+        }
+
+        public AnimationClip ResolveClip(string sourceClipName, bool useWallRideVariant)
+        {
+            if (useWallRideVariant)
+            {
+                AnimationClip wallRideVariant = sourceClipName switch
+                {
+                    IdleSourceClipName => wallRideIdleClip,
+                    MoveLeftSourceClipName => wallRideLeftClip,
+                    MoveRightSourceClipName => wallRideRightClip,
+                    JumpStartSourceClipName => wallRideJumpStartClip,
+                    JumpHoldSourceClipName => wallRideJumpHoldClip,
+                    _ => null
+                };
+
+                if (wallRideVariant != null)
+                {
+                    return wallRideVariant;
+                }
+            }
+
+            TryGetOverride(sourceClipName, out AnimationClip clip);
+            return clip;
         }
 
 #if UNITY_EDITOR
@@ -103,6 +144,21 @@ namespace Race.Player
                     break;
                 case LandingSourceClipName:
                     landingClip = clip;
+                    break;
+                case WallRideIdleSourceClipName:
+                    wallRideIdleClip = clip;
+                    break;
+                case WallRideLeftSourceClipName:
+                    wallRideLeftClip = clip;
+                    break;
+                case WallRideRightSourceClipName:
+                    wallRideRightClip = clip;
+                    break;
+                case WallRideJumpStartSourceClipName:
+                    wallRideJumpStartClip = clip;
+                    break;
+                case WallRideJumpHoldSourceClipName:
+                    wallRideJumpHoldClip = clip;
                     break;
             }
         }

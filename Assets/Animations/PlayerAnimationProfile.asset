@@ -24,4 +24,9 @@ MonoBehaviour:
   jumpAscendingClip: {fileID: 3145914468455835084, guid: b6a56f2d6a3b59b47a0a8d016b8a21c9, type: 3}
   jumpDescendingClip: {fileID: -4146633653483195186, guid: b6a56f2d6a3b59b47a0a8d016b8a21c9, type: 3}
   landingClip: {fileID: 7400000, guid: 6ac87f2445b0b034eb67c9f7a8f60d5b, type: 2}
+  wallRideIdleClip: {fileID: -8945691123924629249, guid: b6a56f2d6a3b59b47a0a8d016b8a21c9, type: 3}
+  wallRideLeftClip: {fileID: 8013224679525160079, guid: b6a56f2d6a3b59b47a0a8d016b8a21c9, type: 3}
+  wallRideRightClip: {fileID: -1780630075428498128, guid: b6a56f2d6a3b59b47a0a8d016b8a21c9, type: 3}
+  wallRideJumpStartClip: {fileID: -7130173953309157469, guid: b6a56f2d6a3b59b47a0a8d016b8a21c9, type: 3}
+  wallRideJumpHoldClip: {fileID: -5313546299885972514, guid: b6a56f2d6a3b59b47a0a8d016b8a21c9, type: 3}
   footIkProfile: {fileID: 11400000, guid: d88573fb650767a479aced944baa985d, type: 2}

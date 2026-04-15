@@ -23,6 +23,11 @@ namespace Race.Editor
         private const string JumpReleaseClipName = "Armature|JumpRelease";
         private const string JumpAscendingClipName = "Armature|JumpingUpwardAirHold";
         private const string JumpDescendingClipName = "Armature|JumpingDownwardAirHold";
+        private const string WallRideIdleClipName = "Armature|WallRideIdle";
+        private const string WallRideLeftClipName = "Armature|WallRideLeft";
+        private const string WallRideRightClipName = "Armature|WallRideRight";
+        private const string WallRideJumpStartClipName = "Armature|WallRideJumpStart";
+        private const string WallRideJumpHoldClipName = "Armature|WallRideJumpHold";
 
         [MenuItem("Tools/Race/Animations/Build Modular Player Animation Setup")]
         public static void BuildModularPlayerAnimationSetup()
@@ -85,6 +90,11 @@ namespace Race.Editor
             AssignProfileClip(serializedProfile, "jumpReleaseClip", clipsByName, JumpReleaseClipName);
             AssignProfileClip(serializedProfile, "jumpAscendingClip", clipsByName, JumpAscendingClipName);
             AssignProfileClip(serializedProfile, "jumpDescendingClip", clipsByName, JumpDescendingClipName);
+            AssignProfileClip(serializedProfile, "wallRideIdleClip", clipsByName, WallRideIdleClipName);
+            AssignProfileClip(serializedProfile, "wallRideLeftClip", clipsByName, WallRideLeftClipName);
+            AssignProfileClip(serializedProfile, "wallRideRightClip", clipsByName, WallRideRightClipName);
+            AssignProfileClip(serializedProfile, "wallRideJumpStartClip", clipsByName, WallRideJumpStartClipName);
+            AssignProfileClip(serializedProfile, "wallRideJumpHoldClip", clipsByName, WallRideJumpHoldClipName);
             serializedProfile.ApplyModifiedPropertiesWithoutUndo();
 
             PlayerFootIkProfile footIkProfile = AssetDatabase.LoadAssetAtPath<PlayerFootIkProfile>(FootIkProfilePath);

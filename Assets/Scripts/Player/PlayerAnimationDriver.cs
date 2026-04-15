@@ -100,6 +100,7 @@ namespace Race.Player
                 shouldForceIdle ? 0f : normalizedLocalVelocity.magnitude,
                 playerMotor.IsJumpHoldActive,
                 animationGrounded,
+                isWallRiding,
                 animationVerticalSpeed,
                 animationJumpPhase);
 
@@ -144,20 +145,18 @@ namespace Race.Player
             Vector3 facingForward = playerMotor.FacingForward;
             if (facingForward.sqrMagnitude <= 0.0001f)
             {
-                return Vector2.up;
+                return Vector2.zero;
             }
 
             Vector3 right = Vector3.Cross(Vector3.up, facingForward).normalized;
             Vector3 wallNormal = playerMotor.WallNormal;
             float sideAlignment = Vector3.Dot(right, wallNormal);
-            float forwardAlignment = -Vector3.Dot(facingForward, wallNormal);
-
-            if (Mathf.Abs(sideAlignment) > Mathf.Abs(forwardAlignment))
+            if (Mathf.Abs(sideAlignment) <= 0.01f)
             {
-                return new Vector2(-Mathf.Sign(sideAlignment), 0f);
+                return Vector2.zero;
             }
 
-            return Vector2.up;
+            return new Vector2(-Mathf.Sign(sideAlignment), 0f);
         }
 
         private void HandleJumpStarted()

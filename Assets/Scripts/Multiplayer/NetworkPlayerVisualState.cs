@@ -31,6 +31,12 @@ namespace Race.Multiplayer
             set => Flags = value ? (byte)(Flags | 2) : (byte)(Flags & ~2);
         }
 
+        public bool IsWallRiding
+        {
+            readonly get => (Flags & 4) != 0;
+            set => Flags = value ? (byte)(Flags | 4) : (byte)(Flags & ~4);
+        }
+
         public static NetworkPlayerVisualState From(Race.Player.PlayerAnimationState state, Vector3 facingForward)
         {
             float yaw = Mathf.Atan2(facingForward.x, facingForward.z) * Mathf.Rad2Deg;
@@ -52,6 +58,7 @@ namespace Race.Multiplayer
 
             networkState.JumpHeld = state.JumpHeld;
             networkState.IsGrounded = state.IsGrounded;
+            networkState.IsWallRiding = state.IsWallRiding;
             return networkState;
         }
 
@@ -63,6 +70,7 @@ namespace Race.Multiplayer
                 MoveMagnitude / MagnitudeScale,
                 JumpHeld,
                 IsGrounded,
+                IsWallRiding,
                 VerticalSpeed / VerticalSpeedScale,
                 JumpPhase);
         }
