@@ -83,6 +83,7 @@ GameObject:
   - component: {fileID: 4743016789049965915}
   - component: {fileID: 8376874737755586538}
   - component: {fileID: 3062336965346908303}
+  - component: {fileID: 9124226504507833153}
   m_Layer: 0
   m_Name: SpeedLabel
   m_TagString: Untagged
@@ -166,6 +167,30 @@ MonoBehaviour:
   m_EffectColor: {r: 0, g: 0, b: 0, a: 1}
   m_EffectDistance: {x: 5.2000003, y: -5.2000003}
   m_UseGraphicAlpha: 1
+--- !u!114 &9124226504507833153
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2308995075239227490}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5c98a605a72a47229a1668980d3e7258, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetRect: {fileID: 8087316670054818822}
+  sourceCamera: {fileID: 0}
+  yawToHorizontalOffset: 0.06
+  pitchToVerticalOffset: 0.026
+  lateralVelocityToHorizontalOffset: 0.032
+  verticalVelocityToVerticalOffset: 0.014
+  maxOffset: 22
+  offsetSharpness: 3.4
+  bounceStrength: 22
+  bounceDamping: 7.5
+  motionImpulseStrength: 0.38
+  useUnscaledTime: 1
 --- !u!1 &5639346009120182752
 GameObject:
   m_ObjectHideFlags: 0
@@ -177,6 +202,7 @@ GameObject:
   - component: {fileID: 3008022427375103521}
   - component: {fileID: 4420311072530014426}
   - component: {fileID: 8512143042095002876}
+  - component: {fileID: 795616704191219615}
   m_Layer: 0
   m_Name: Meter
   m_TagString: Untagged
@@ -238,3 +264,27 @@ MonoBehaviour:
     y: 0
     width: 1
     height: 1
+--- !u!114 &795616704191219615
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5639346009120182752}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5c98a605a72a47229a1668980d3e7258, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetRect: {fileID: 3008022427375103521}
+  sourceCamera: {fileID: 0}
+  yawToHorizontalOffset: 0.085
+  pitchToVerticalOffset: 0.036
+  lateralVelocityToHorizontalOffset: 0.045
+  verticalVelocityToVerticalOffset: 0.019
+  maxOffset: 30
+  offsetSharpness: 3.1
+  bounceStrength: 24
+  bounceDamping: 7
+  motionImpulseStrength: 0.45
+  useUnscaledTime: 1
