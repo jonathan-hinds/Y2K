@@ -47783,7 +47783,10 @@ MonoBehaviour:
   grindAirControlDetachThreshold: 0.35
   grindBalanceEnabled: 1
   grindBalanceSafeZone: 0.2
-  grindBalanceControlStrength: 2.4
+  grindBalanceControlAcceleration: 2.1
+  grindBalanceControlDeceleration: 1.15
+  grindBalanceControlTopSpeed: 2.6
+  grindBalanceCenterControlMultiplier: 0.35
   grindBalanceBaseDrift: 0.58
   grindBalanceSpeedDriftMultiplier: 0.85
   grindBalanceCurvatureInfluence: 9

@@ -8,8 +8,6 @@ namespace Race.Player
     [RequireComponent(typeof(MousePlaneAimer))]
     public sealed class PlayerMotor : MonoBehaviour
     {
-        private const float GrindBalanceRedZoneBlendStart = 0.45f;
-
         private struct WallContact
         {
             public bool IsValid;
@@ -99,7 +97,10 @@ namespace Race.Player
         [Header("Grind Balance")]
         [SerializeField] private bool grindBalanceEnabled = true;
         [SerializeField, Range(0.05f, 0.45f)] private float grindBalanceSafeZone = 0.2f;
-        [SerializeField, Min(0.1f)] private float grindBalanceControlStrength = 2.4f;
+        [SerializeField, Min(0.1f)] private float grindBalanceControlAcceleration = 2.1f;
+        [SerializeField, Min(0.1f)] private float grindBalanceControlDeceleration = 1.15f;
+        [SerializeField, Min(0f)] private float grindBalanceControlTopSpeed = 2.6f;
+        [SerializeField, Range(0.1f, 1f)] private float grindBalanceCenterControlMultiplier = 0.35f;
         [SerializeField, Min(0f)] private float grindBalanceBaseDrift = 0.58f;
         [SerializeField, Min(0f)] private float grindBalanceSpeedDriftMultiplier = 0.85f;
         [SerializeField, Min(0f)] private float grindBalanceCurvatureInfluence = 9f;
@@ -155,6 +156,7 @@ namespace Race.Player
         private float grindBalanceOffset;
         private float grindBalanceDriftVelocity;
         private float grindBalanceDriftTarget;
+        private float grindBalanceControlVelocity;
         private float grindBalanceRetargetTimer;
         private float grindFailureLockoutTimer;
         private readonly Collider[] grindProbeResults = new Collider[64];
@@ -1157,18 +1159,7 @@ namespace Race.Player
                 return true;
             }
 
-            if (grindBalanceRetargetTimer <= 0f)
-            {
-                float minimumRetargetTime = Mathf.Max(0.05f, grindBalanceDriftRetargetTime.x);
-                float maximumRetargetTime = Mathf.Max(minimumRetargetTime, grindBalanceDriftRetargetTime.y);
-                grindBalanceRetargetTimer = Random.Range(minimumRetargetTime, maximumRetargetTime);
-                grindBalanceDriftTarget = Random.Range(-1f, 1f);
-            }
-            else
-            {
-                grindBalanceRetargetTimer -= Time.deltaTime;
-            }
-
+            UpdateGrindingDriftTarget();
             float normalizedSpeed = Mathf.Clamp01(Mathf.Abs(grindSignedSpeed) / Mathf.Max(1f, sprintSpeed));
             float driftMagnitude = grindBalanceBaseDrift * (1f + (normalizedSpeed * grindBalanceSpeedDriftMultiplier));
             float driftBlend = 1f - Mathf.Exp(-grindBalanceDriftSharpness * Time.deltaTime);
@@ -1176,17 +1167,57 @@ namespace Race.Player
 
             Vector3 nextTangent = GetCanonicalGrindTangent(nextSample.Tangent);
             float signedCurvature = Vector3.Dot(Vector3.Cross(grindTangent, nextTangent), grindUp) * grindBalanceCurvatureInfluence;
-            float control = moveInput.x * grindBalanceControlStrength;
-            grindBalanceOffset += (grindBalanceDriftVelocity + signedCurvature + control) * Time.deltaTime;
+            float controlVelocity = UpdateGrindingBalanceControlVelocity(moveInput.x);
+            grindBalanceOffset += (grindBalanceDriftVelocity + signedCurvature + controlVelocity) * Time.deltaTime;
 
-            float maximumBalanceExtent = Mathf.Max(0.01f, grindBalanceFailureThreshold);
-            float redZoneThreshold = Mathf.Lerp(
-                Mathf.Min(grindBalanceSafeZone, maximumBalanceExtent),
-                maximumBalanceExtent,
-                GrindBalanceRedZoneBlendStart);
+            float failureThreshold = GetGrindBalanceFailureThreshold();
+            grindBalanceOffset = Mathf.Clamp(grindBalanceOffset, -failureThreshold * 1.25f, failureThreshold * 1.25f);
+            return !HasExceededGrindingBalanceFailureThreshold(failureThreshold);
+        }
 
-            grindBalanceOffset = Mathf.Clamp(grindBalanceOffset, -maximumBalanceExtent * 1.25f, maximumBalanceExtent * 1.25f);
-            return Mathf.Abs(grindBalanceOffset) < redZoneThreshold;
+        private void UpdateGrindingDriftTarget()
+        {
+            if (grindBalanceRetargetTimer <= 0f)
+            {
+                float minimumRetargetTime = Mathf.Max(0.05f, grindBalanceDriftRetargetTime.x);
+                float maximumRetargetTime = Mathf.Max(minimumRetargetTime, grindBalanceDriftRetargetTime.y);
+                grindBalanceRetargetTimer = Random.Range(minimumRetargetTime, maximumRetargetTime);
+                grindBalanceDriftTarget = Random.Range(-1f, 1f);
+                return;
+            }
+
+            grindBalanceRetargetTimer -= Time.deltaTime;
+        }
+
+        private float UpdateGrindingBalanceControlVelocity(float horizontalInput)
+        {
+            float clampedInput = Mathf.Clamp(horizontalInput, -1f, 1f);
+            float failureThreshold = GetGrindBalanceFailureThreshold();
+            float safeZoneThreshold = Mathf.Min(grindBalanceSafeZone, failureThreshold);
+            float currentOffsetMagnitude = Mathf.Abs(grindBalanceOffset);
+            float danger = Mathf.InverseLerp(safeZoneThreshold, failureThreshold, currentOffsetMagnitude);
+            float controlAuthority = Mathf.Lerp(grindBalanceCenterControlMultiplier, 1f, danger);
+            float targetVelocity = clampedInput * grindBalanceControlTopSpeed * controlAuthority;
+
+            float currentVelocity = grindBalanceControlVelocity;
+            bool isAcceleratingIntoSameDirection = Mathf.Abs(targetVelocity) > Mathf.Abs(currentVelocity)
+                && (Mathf.Approximately(currentVelocity, 0f) || Mathf.Sign(targetVelocity) == Mathf.Sign(currentVelocity));
+            float rate = isAcceleratingIntoSameDirection
+                ? grindBalanceControlAcceleration
+                : grindBalanceControlDeceleration;
+
+            grindBalanceControlVelocity = Mathf.MoveTowards(currentVelocity, targetVelocity, rate * Time.deltaTime);
+            return grindBalanceControlVelocity;
+        }
+
+        private float GetGrindBalanceFailureThreshold()
+        {
+            return Mathf.Max(0.01f, grindBalanceFailureThreshold);
+        }
+
+        private bool HasExceededGrindingBalanceFailureThreshold(float failureThreshold)
+        {
+            return Mathf.Abs(grindBalanceOffset) >= failureThreshold;
         }
 
         private void FailGrindingBalance()
@@ -1689,7 +1720,10 @@ namespace Race.Player
             grindAirControlDetachThreshold = movementProfile.GrindAirControlDetachThreshold;
             grindBalanceEnabled = movementProfile.GrindBalanceEnabled;
             grindBalanceSafeZone = movementProfile.GrindBalanceSafeZone;
-            grindBalanceControlStrength = movementProfile.GrindBalanceControlStrength;
+            grindBalanceControlAcceleration = movementProfile.GrindBalanceControlAcceleration;
+            grindBalanceControlDeceleration = movementProfile.GrindBalanceControlDeceleration;
+            grindBalanceControlTopSpeed = movementProfile.GrindBalanceControlTopSpeed;
+            grindBalanceCenterControlMultiplier = movementProfile.GrindBalanceCenterControlMultiplier;
             grindBalanceBaseDrift = movementProfile.GrindBalanceBaseDrift;
             grindBalanceSpeedDriftMultiplier = movementProfile.GrindBalanceSpeedDriftMultiplier;
             grindBalanceCurvatureInfluence = movementProfile.GrindBalanceCurvatureInfluence;
@@ -1710,6 +1744,7 @@ namespace Race.Player
                 : 0f;
             grindBalanceDriftVelocity = 0f;
             grindBalanceDriftTarget = 0f;
+            grindBalanceControlVelocity = 0f;
             grindBalanceRetargetTimer = 0f;
         }
 

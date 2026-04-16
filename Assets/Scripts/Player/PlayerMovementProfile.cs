@@ -60,7 +60,10 @@ namespace Race.Player
         [field: Header("Grind Balance")]
         [field: SerializeField] public bool GrindBalanceEnabled { get; private set; } = true;
         [field: SerializeField, Range(0.05f, 0.45f)] public float GrindBalanceSafeZone { get; private set; } = 0.2f;
-        [field: SerializeField, Min(0.1f)] public float GrindBalanceControlStrength { get; private set; } = 2.4f;
+        [field: SerializeField, Min(0.1f)] public float GrindBalanceControlAcceleration { get; private set; } = 2.1f;
+        [field: SerializeField, Min(0.1f)] public float GrindBalanceControlDeceleration { get; private set; } = 1.15f;
+        [field: SerializeField, Min(0f)] public float GrindBalanceControlTopSpeed { get; private set; } = 2.6f;
+        [field: SerializeField, Range(0.1f, 1f)] public float GrindBalanceCenterControlMultiplier { get; private set; } = 0.35f;
         [field: SerializeField, Min(0f)] public float GrindBalanceBaseDrift { get; private set; } = 0.58f;
         [field: SerializeField, Min(0f)] public float GrindBalanceSpeedDriftMultiplier { get; private set; } = 0.85f;
         [field: SerializeField, Min(0f)] public float GrindBalanceCurvatureInfluence { get; private set; } = 9f;
