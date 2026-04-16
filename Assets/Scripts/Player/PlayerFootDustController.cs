@@ -38,6 +38,7 @@ namespace Race.Player
         [Header("References")]
         [SerializeField] private PlayerAnimator playerAnimator;
         [SerializeField] private PlayerMotor playerMotor;
+        [SerializeField] private Material fallbackDustMaterial;
         [SerializeField] private FootDustEmitter leftFoot = new();
         [SerializeField] private FootDustEmitter rightFoot = new();
 
@@ -283,6 +284,8 @@ namespace Race.Player
                 return;
             }
 
+            ApplyRendererMaterial(system);
+
             var main = system.main;
             main.startColor = new ParticleSystem.MinMaxGradient(lightSmokeColor, darkSmokeColor);
 
@@ -323,6 +326,30 @@ namespace Race.Player
                     });
                 trails.colorOverLifetime = new ParticleSystem.MinMaxGradient(trailGradient);
             }
+        }
+
+        private void ApplyRendererMaterial(ParticleSystem system)
+        {
+            if (fallbackDustMaterial == null)
+            {
+                return;
+            }
+
+            ParticleSystemRenderer particleRenderer = system.GetComponent<ParticleSystemRenderer>();
+            if (particleRenderer == null)
+            {
+                return;
+            }
+
+            Material[] currentMaterials = particleRenderer.sharedMaterials;
+            int materialCount = Mathf.Max(1, currentMaterials != null ? currentMaterials.Length : 0);
+            Material[] replacementMaterials = new Material[materialCount];
+            for (int index = 0; index < materialCount; index++)
+            {
+                replacementMaterials[index] = fallbackDustMaterial;
+            }
+
+            particleRenderer.sharedMaterials = replacementMaterials;
         }
     }
 }

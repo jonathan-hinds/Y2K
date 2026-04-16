@@ -57,6 +57,21 @@ namespace Race.Player
         [field: SerializeField, Min(0f)] public float GrindAirborneReattachDistance { get; private set; } = 0.5f;
         [field: SerializeField, Range(0f, 1f)] public float GrindAirControlDetachThreshold { get; private set; } = 0.35f;
 
+        [field: Header("Grind Balance")]
+        [field: SerializeField] public bool GrindBalanceEnabled { get; private set; } = true;
+        [field: SerializeField, Range(0.05f, 0.45f)] public float GrindBalanceSafeZone { get; private set; } = 0.2f;
+        [field: SerializeField, Min(0.1f)] public float GrindBalanceControlStrength { get; private set; } = 2.4f;
+        [field: SerializeField, Min(0f)] public float GrindBalanceBaseDrift { get; private set; } = 0.58f;
+        [field: SerializeField, Min(0f)] public float GrindBalanceSpeedDriftMultiplier { get; private set; } = 0.85f;
+        [field: SerializeField, Min(0f)] public float GrindBalanceCurvatureInfluence { get; private set; } = 9f;
+        [field: SerializeField, Min(0.1f)] public float GrindBalanceDriftSharpness { get; private set; } = 4.5f;
+        [field: SerializeField] public Vector2 GrindBalanceDriftRetargetTime { get; private set; } = new(0.45f, 1.05f);
+        [field: SerializeField, Min(0.25f)] public float GrindBalanceFailureThreshold { get; private set; } = 1f;
+        [field: SerializeField, Min(0f)] public float GrindBalanceFailureLockoutDuration { get; private set; } = 2.5f;
+        [field: SerializeField, Min(0f)] public float GrindBalanceFailureLaunchHorizontalSpeed { get; private set; } = 18f;
+        [field: SerializeField, Min(0f)] public float GrindBalanceFailureLaunchVerticalSpeed { get; private set; } = 12f;
+        [field: SerializeField, Range(0f, 1f)] public float GrindBalanceFailureLaunchTangentJitter { get; private set; } = 0.3f;
+
         [field: Header("Traversal Timing")]
         [field: SerializeField, Min(0f)] public float TraversalActivationWindow { get; private set; } = 0.2f;
 

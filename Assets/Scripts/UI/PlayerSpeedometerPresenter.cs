@@ -36,9 +36,17 @@ namespace Race.UI
                 return;
             }
 
-            if (playerMotor == null && autoFindPlayerMotor)
+            if (autoFindPlayerMotor)
             {
-                TryBindPlayerMotor();
+                if (!LocalPlayerMotorResolver.IsLocalPlayerMotorCandidate(playerMotor))
+                {
+                    playerMotor = null;
+                }
+
+                if (playerMotor == null)
+                {
+                    TryBindPlayerMotor();
+                }
             }
 
             float currentSpeedMph = playerMotor != null
@@ -63,12 +71,12 @@ namespace Race.UI
 
         private void TryBindPlayerMotor()
         {
-            if (playerMotor != null)
+            if (LocalPlayerMotorResolver.IsLocalPlayerMotorCandidate(playerMotor))
             {
                 return;
             }
 
-            playerMotor = FindFirstObjectByType<PlayerMotor>();
+            playerMotor = LocalPlayerMotorResolver.FindLocalPlayerMotor();
         }
     }
 }

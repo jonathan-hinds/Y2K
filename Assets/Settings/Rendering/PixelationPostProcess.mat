@@ -25,9 +25,9 @@ Material:
     m_TexEnvs: []
     m_Ints: []
     m_Floats:
-    - _Blend: 1
+    - _Blend: 0
     - _ColorSteps: 48
-    - _DitherStrength: 0.15
+    - _DitherStrength: 0
     - _VerticalResolution: 320
     m_Colors: []
   m_BuildTextureStacks: []
