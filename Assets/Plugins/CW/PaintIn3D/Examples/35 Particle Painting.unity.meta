@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 3eb2002e931c0af43b5c71ce7a9594a2
+timeCreated: 1530249627
+licenseType: Store
+DefaultImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 26286
+  packageName: Paint in 3D
+  packageVersion: 4.2.0
+  assetPath: Assets/Plugins/CW/PaintIn3D/Examples/35 Particle Painting.unity
+  uploadId: 846020

@@ -1,0 +1,19 @@
+fileFormatVersion: 2
+guid: 9a74211efd295a64b80f4d3fe687be1b
+timeCreated: 1565322251
+licenseType: Store
+MonoImporter:
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 26286
+  packageName: Paint in 3D
+  packageVersion: 4.2.0
+  assetPath: Assets/Plugins/CW/PaintCore/Required/Scripts/CwTextureHash.cs
+  uploadId: 846020

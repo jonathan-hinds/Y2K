@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: a86efe40fd7c7f94faf7d2de7013a9e6
+timeCreated: 1573271568
+licenseType: Store
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 8400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 26286
+  packageName: Paint in 3D
+  packageVersion: 4.2.0
+  assetPath: Assets/Plugins/CW/PaintIn3D/Examples/Textures/DynamicDecal.renderTexture
+  uploadId: 846020

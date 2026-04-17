@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: 1d2077e8ad53988428c9391e3468a4cb
+timeCreated: 1574563120
+licenseType: Store
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 11400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 26286
+  packageName: Paint in 3D
+  packageVersion: 4.2.0
+  assetPath: Assets/Plugins/CW/PaintIn3D/Examples/Meshes/Mesh Fixer (Map1).asset
+  uploadId: 846020

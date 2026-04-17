@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 465e00f388772364999d924ce16b1605
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 26286
+  packageName: Paint in 3D
+  packageVersion: 4.2.0
+  assetPath: Assets/Plugins/CW/PaintIn3D/Examples/Scripts/CwProceduralSetup.cs
+  uploadId: 846020

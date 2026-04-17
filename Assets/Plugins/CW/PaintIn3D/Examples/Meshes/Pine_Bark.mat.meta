@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 0d2c42f69e16e094ba3c3bacdab456ee
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 26286
+  packageName: Paint in 3D
+  packageVersion: 4.2.0
+  assetPath: Assets/Plugins/CW/PaintIn3D/Examples/Meshes/Pine_Bark.mat
+  uploadId: 846020

@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 20744f20742dc7b41aa4fe2789f6d11c
+timeCreated: 1530247209
+licenseType: Store
+ShaderImporter:
+  defaultTextures: []
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 26286
+  packageName: Paint in 3D
+  packageVersion: 4.2.0
+  assetPath: Assets/Plugins/CW/PaintCore/Required/Resources/CwNormal.shader
+  uploadId: 846020

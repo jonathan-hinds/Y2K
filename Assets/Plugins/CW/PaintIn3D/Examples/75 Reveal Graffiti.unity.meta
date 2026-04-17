@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 6b5f2ef98c521c64faf153d3c67d8858
+DefaultImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 26286
+  packageName: Paint in 3D
+  packageVersion: 4.2.0
+  assetPath: Assets/Plugins/CW/PaintIn3D/Examples/75 Reveal Graffiti.unity
+  uploadId: 846020

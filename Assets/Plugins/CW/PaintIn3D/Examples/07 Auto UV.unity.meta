@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 40534bda8df37ac46821dea4acfe51b3
+timeCreated: 1530249627
+licenseType: Store
+DefaultImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 26286
+  packageName: Paint in 3D
+  packageVersion: 4.2.0
+  assetPath: Assets/Plugins/CW/PaintIn3D/Examples/07 Auto UV.unity
+  uploadId: 846020

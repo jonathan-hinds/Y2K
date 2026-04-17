@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: fbe2386c638e9e44da97dbbceca3d022
+timeCreated: 1572941375
+licenseType: Store
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 11400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 26286
+  packageName: Paint in 3D
+  packageVersion: 4.2.0
+  assetPath: Assets/Plugins/CW/PaintIn3D/Examples/Meshes/Mesh Fixer (Separated Cylinder).asset
+  uploadId: 846020

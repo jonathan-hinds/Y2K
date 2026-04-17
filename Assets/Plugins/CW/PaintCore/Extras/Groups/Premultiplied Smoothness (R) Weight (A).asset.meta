@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: a2589ce3f0af8404cbf99c6a8354e806
+timeCreated: 1575886731
+licenseType: Store
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 11400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 26286
+  packageName: Paint in 3D
+  packageVersion: 4.2.0
+  assetPath: Assets/Plugins/CW/PaintCore/Extras/Groups/Premultiplied Smoothness (R)
+    Weight (A).asset
+  uploadId: 846020

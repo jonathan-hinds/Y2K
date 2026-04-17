@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 8cca97464eb1af948b4de8d617e83ae1
+timeCreated: 1530488570
+licenseType: Store
+ShaderImporter:
+  defaultTextures: []
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 26286
+  packageName: Paint in 3D
+  packageVersion: 4.2.0
+  assetPath: Assets/Plugins/CW/PaintCore/Required/Resources/CwFill.cginc
+  uploadId: 846020

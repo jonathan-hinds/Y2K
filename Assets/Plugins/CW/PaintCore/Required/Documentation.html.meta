@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 328a9120a5427284a97cc5270bc34780
+TextScriptImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 26286
+  packageName: Paint in 3D
+  packageVersion: 4.2.0
+  assetPath: Assets/Plugins/CW/PaintCore/Required/Documentation.html
+  uploadId: 846020

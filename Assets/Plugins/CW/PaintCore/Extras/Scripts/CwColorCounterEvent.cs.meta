@@ -1,0 +1,19 @@
+fileFormatVersion: 2
+guid: a78581763ac008c4ea185c43d0c25394
+timeCreated: 1530247183
+licenseType: Store
+MonoImporter:
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 26286
+  packageName: Paint in 3D
+  packageVersion: 4.2.0
+  assetPath: Assets/Plugins/CW/PaintCore/Extras/Scripts/CwColorCounterEvent.cs
+  uploadId: 846020

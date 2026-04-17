@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: cca11dcf158d04c4eb80eb346d39e2ad
+AssemblyDefinitionImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 26286
+  packageName: Paint in 3D
+  packageVersion: 4.2.0
+  assetPath: Assets/Plugins/CW/PaintIn3D/PaintIn3D.asmdef
+  uploadId: 846020

@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: 0ef3d777662320a44aae3fb63d8cf6e9
+timeCreated: 1575007837
+licenseType: Store
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 26286
+  packageName: Paint in 3D
+  packageVersion: 4.2.0
+  assetPath: Assets/Plugins/CW/PaintIn3D/Examples/Meshes/Marker (Purple).mat
+  uploadId: 846020

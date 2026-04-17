@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: dbc42d35ad55a9b419eb3de38fa8b43a
+timeCreated: 1530249627
+licenseType: Store
+DefaultImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 26286
+  packageName: Paint in 3D
+  packageVersion: 4.2.0
+  assetPath: Assets/Plugins/CW/PaintIn3D/Examples/Fireball Holes.unity
+  uploadId: 846020

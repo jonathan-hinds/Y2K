@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 5b1cedf3a7e38834a83a33640ad691df
+ShaderImporter:
+  externalObjects: {}
+  defaultTextures: []
+  nonModifiableTextures: []
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 26286
+  packageName: Paint in 3D
+  packageVersion: 4.2.0
+  assetPath: Assets/Plugins/CW/PaintCore/Required/Shaders/RenderDepth.shader
+  uploadId: 846020

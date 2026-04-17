@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 027335e705033da479c972e2144b6f0a
+timeCreated: 1530249627
+licenseType: Store
+DefaultImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 26286
+  packageName: Paint in 3D
+  packageVersion: 4.2.0
+  assetPath: Assets/Plugins/CW/PaintIn3D/Examples/Transparent Object Painting.unity
+  uploadId: 846020

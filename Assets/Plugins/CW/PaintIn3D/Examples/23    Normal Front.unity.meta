@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 8c32817bb8338eb4d98abcb54575ec8b
+timeCreated: 1581048966
+licenseType: Store
+DefaultImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 26286
+  packageName: Paint in 3D
+  packageVersion: 4.2.0
+  assetPath: Assets/Plugins/CW/PaintIn3D/Examples/23    Normal Front.unity
+  uploadId: 846020

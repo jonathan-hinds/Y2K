@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: b943db399db1e0e40945c5e790896d6c
+timeCreated: 1530249627
+licenseType: Store
+DefaultImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 26286
+  packageName: Paint in 3D
+  packageVersion: 4.2.0
+  assetPath: Assets/Plugins/CW/PaintIn3D/Examples/79 Paint From Code.unity
+  uploadId: 846020

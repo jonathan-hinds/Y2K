@@ -1,0 +1,20 @@
+fileFormatVersion: 2
+guid: 6fb62164c02090f4ea9e1ccb315716f5
+timeCreated: 1587733332
+licenseType: Store
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 26286
+  packageName: Paint in 3D
+  packageVersion: 4.2.0
+  assetPath: Assets/Plugins/CW/PaintCore/Required/Scripts/CwPaintableObjects_Scene.cs
+  uploadId: 846020

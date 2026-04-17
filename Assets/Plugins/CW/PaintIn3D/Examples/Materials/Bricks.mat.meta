@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: 044765d64a462c243a2c6ee9c9c7a1d4
+timeCreated: 1574565543
+licenseType: Store
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 26286
+  packageName: Paint in 3D
+  packageVersion: 4.2.0
+  assetPath: Assets/Plugins/CW/PaintIn3D/Examples/Materials/Bricks.mat
+  uploadId: 846020

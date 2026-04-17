@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 42903e2d99f4d3441bd5bdf548c1c87d
+timeCreated: 1530249627
+licenseType: Store
+DefaultImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 26286
+  packageName: Paint in 3D
+  packageVersion: 4.2.0
+  assetPath: Assets/Plugins/CW/PaintIn3D/Examples/Car Decals.unity
+  uploadId: 846020

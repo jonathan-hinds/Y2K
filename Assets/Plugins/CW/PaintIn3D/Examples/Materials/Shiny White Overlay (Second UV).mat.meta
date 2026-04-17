@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 4ba1cb13f42d5c7428335cdf35ca2a10
+timeCreated: 1587350022
+licenseType: Store
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 26286
+  packageName: Paint in 3D
+  packageVersion: 4.2.0
+  assetPath: Assets/Plugins/CW/PaintIn3D/Examples/Materials/Shiny White Overlay (Second
+    UV).mat
+  uploadId: 846020

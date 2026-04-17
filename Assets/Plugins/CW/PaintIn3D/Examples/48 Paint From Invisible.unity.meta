@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 02425ca4b5a578e45958b1d7ccb646c6
+timeCreated: 1530249627
+licenseType: Store
+DefaultImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 26286
+  packageName: Paint in 3D
+  packageVersion: 4.2.0
+  assetPath: Assets/Plugins/CW/PaintIn3D/Examples/48 Paint From Invisible.unity
+  uploadId: 846020

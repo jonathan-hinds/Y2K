@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: d90f7e220367b4447bff26cbe8bff528
+timeCreated: 1530249627
+licenseType: Store
+DefaultImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 26286
+  packageName: Paint in 3D
+  packageVersion: 4.2.0
+  assetPath: Assets/Plugins/CW/PaintIn3D/Examples/85 Line Painting.unity
+  uploadId: 846020

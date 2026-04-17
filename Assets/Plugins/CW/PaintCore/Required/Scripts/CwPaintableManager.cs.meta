@@ -1,0 +1,19 @@
+fileFormatVersion: 2
+guid: c15e50e0f7c332d4aa576340eaa0294d
+timeCreated: 1531613806
+licenseType: Store
+MonoImporter:
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 100
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 26286
+  packageName: Paint in 3D
+  packageVersion: 4.2.0
+  assetPath: Assets/Plugins/CW/PaintCore/Required/Scripts/CwPaintableManager.cs
+  uploadId: 846020

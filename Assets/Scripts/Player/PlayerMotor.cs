@@ -159,6 +159,7 @@ namespace Race.Player
         private float grindBalanceControlVelocity;
         private float grindBalanceRetargetTimer;
         private float grindFailureLockoutTimer;
+        private bool gameplayMovementLocked;
         private readonly Collider[] grindProbeResults = new Collider[64];
         private readonly TimedTraversalInputGate wallRideInputGate = new();
 
@@ -181,6 +182,8 @@ namespace Race.Player
         public bool IsSlopeSliding { get; private set; }
         public bool IsWallRiding => isWallRiding;
         public bool IsGrinding => isGrinding;
+        public bool GameplayMovementLocked => gameplayMovementLocked;
+        public bool CanBeginGroundedInteraction => IsGrounded && !isWallRiding && !isGrinding && !jumpPreparing && jumpPhase == JumpPhase.Grounded;
         public bool GrindBalanceEnabled => grindBalanceEnabled;
         public float GrindBalanceNormalized => grindBalanceFailureThreshold <= Mathf.Epsilon
             ? 0f
@@ -233,6 +236,7 @@ namespace Race.Player
             activeGrindRail = null;
             activeGrindT = 0f;
             grindSignedSpeed = 0f;
+            gameplayMovementLocked = false;
             grindAirborneTimer = 0f;
             isGrinding = false;
             isGrindingAttached = false;
@@ -293,8 +297,47 @@ namespace Race.Player
             UpdateJumpPhase();
         }
 
+        public void SetGameplayMovementLocked(bool locked)
+        {
+            gameplayMovementLocked = locked;
+            if (!locked)
+            {
+                return;
+            }
+
+            if (isWallRiding)
+            {
+                EndWallRide();
+            }
+
+            if (isGrinding)
+            {
+                EndGrinding(false);
+            }
+
+            jumpPreparing = false;
+            jumpStartedFromWallRide = false;
+            jumpStartedFromGrind = false;
+            jumpBufferTimer = 0f;
+            jumpPreparationTimer = 0f;
+            jumpPreparationUngroundedTimer = 0f;
+            MoveInput = Vector2.zero;
+            LocalVelocity = Vector2.zero;
+            planarVelocity = Vector3.zero;
+
+            if (IsGrounded)
+            {
+                verticalVelocity = groundedVerticalVelocity;
+            }
+        }
+
         private void UpdateFacing()
         {
+            if (gameplayMovementLocked)
+            {
+                return;
+            }
+
             Vector3 targetForward = Vector3.ProjectOnPlane(aimer.AimForward, Vector3.up);
             if (targetForward.sqrMagnitude <= 0.0001f)
             {
@@ -323,12 +366,14 @@ namespace Race.Player
             ReleaseGrindingIfProbeLostContact();
             Vector3 forward = facingForward.sqrMagnitude > 0.0001f ? facingForward : GetInitialFacingForward();
             Vector3 right = Vector3.Cross(Vector3.up, forward).normalized;
-            Vector2 moveInput = Vector2.ClampMagnitude(input.MoveInput, 1f);
-            MoveInput = isGrinding && isGrindingAttached ? Vector2.zero : moveInput;
+            Vector2 moveInput = gameplayMovementLocked ? Vector2.zero : Vector2.ClampMagnitude(input.MoveInput, 1f);
+            MoveInput = gameplayMovementLocked || (isGrinding && isGrindingAttached) ? Vector2.zero : moveInput;
 
             if (!isGrinding)
             {
-                Vector3 desiredPlanarVelocity = (right * moveInput.x + forward * moveInput.y) * GetTargetSpeed();
+                Vector3 desiredPlanarVelocity = gameplayMovementLocked
+                    ? Vector3.zero
+                    : (right * moveInput.x + forward * moveInput.y) * GetTargetSpeed();
                 if (IsGrounded)
                 {
                     desiredPlanarVelocity = Vector3.ProjectOnPlane(desiredPlanarVelocity, groundNormal);
@@ -341,13 +386,21 @@ namespace Race.Player
                 float controlPercent = IsGrounded ? 1f : airControlPercent;
                 float sharpness = desiredPlanarVelocity.sqrMagnitude > 0.0001f ? acceleration : deceleration;
                 sharpness *= controlPercent;
-                planarVelocity = Vector3.Lerp(planarVelocity, desiredPlanarVelocity, 1f - Mathf.Exp(-sharpness * Time.deltaTime));
-                ApplyWallRideVelocityConstraints();
-                ApplySurfaceGravity();
-                ApplySlopeSliding();
-                ApplyIdlePlanarSnap(moveInput);
-                HandleJumpInput();
-                ApplyVerticalForces();
+                if (gameplayMovementLocked)
+                {
+                    planarVelocity = Vector3.zero;
+                    verticalVelocity = groundedVerticalVelocity;
+                }
+                else
+                {
+                    planarVelocity = Vector3.Lerp(planarVelocity, desiredPlanarVelocity, 1f - Mathf.Exp(-sharpness * Time.deltaTime));
+                    ApplyWallRideVelocityConstraints();
+                    ApplySurfaceGravity();
+                    ApplySlopeSliding();
+                    ApplyIdlePlanarSnap(moveInput);
+                    HandleJumpInput();
+                    ApplyVerticalForces();
+                }
             }
             else
             {

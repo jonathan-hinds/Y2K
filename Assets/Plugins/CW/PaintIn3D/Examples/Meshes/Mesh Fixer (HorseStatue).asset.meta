@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: 93226f8bf2f9a0c44980019a225328d7
+timeCreated: 1587364760
+licenseType: Store
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 11400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 26286
+  packageName: Paint in 3D
+  packageVersion: 4.2.0
+  assetPath: Assets/Plugins/CW/PaintIn3D/Examples/Meshes/Mesh Fixer (HorseStatue).asset
+  uploadId: 846020

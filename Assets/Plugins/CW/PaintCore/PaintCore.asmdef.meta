@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 4b4c1437c0fb823428900cb008a49c07
+AssemblyDefinitionImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 26286
+  packageName: Paint in 3D
+  packageVersion: 4.2.0
+  assetPath: Assets/Plugins/CW/PaintCore/PaintCore.asmdef
+  uploadId: 846020

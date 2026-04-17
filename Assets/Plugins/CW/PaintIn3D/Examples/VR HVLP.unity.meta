@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 4d9771610753a5140aeeabf36b96bc70
+timeCreated: 1574652958
+licenseType: Store
+DefaultImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 26286
+  packageName: Paint in 3D
+  packageVersion: 4.2.0
+  assetPath: Assets/Plugins/CW/PaintIn3D/Examples/VR HVLP.unity
+  uploadId: 846020

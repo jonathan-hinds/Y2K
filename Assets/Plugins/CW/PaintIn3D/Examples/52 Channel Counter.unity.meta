@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 1f156eabd65c8ab4b81cd42658af4f93
+timeCreated: 1530249627
+licenseType: Store
+DefaultImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 26286
+  packageName: Paint in 3D
+  packageVersion: 4.2.0
+  assetPath: Assets/Plugins/CW/PaintIn3D/Examples/52 Channel Counter.unity
+  uploadId: 846020

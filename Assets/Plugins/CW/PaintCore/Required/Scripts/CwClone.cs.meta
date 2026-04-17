@@ -1,0 +1,19 @@
+fileFormatVersion: 2
+guid: 7311b667d863aba4a8239cc3cd5a82a3
+timeCreated: 1565322251
+licenseType: Store
+MonoImporter:
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 26286
+  packageName: Paint in 3D
+  packageVersion: 4.2.0
+  assetPath: Assets/Plugins/CW/PaintCore/Required/Scripts/CwClone.cs
+  uploadId: 846020

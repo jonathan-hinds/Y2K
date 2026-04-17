@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 4f5e87915d52aaf4f87166525b119f49
+timeCreated: 1530249627
+licenseType: Store
+DefaultImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 26286
+  packageName: Paint in 3D
+  packageVersion: 4.2.0
+  assetPath: Assets/Plugins/CW/PaintIn3D/Examples/Wheel Dirt.unity
+  uploadId: 846020

@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: dfee9bf7abfb55b4aae117c6c1b520ec
+timeCreated: 1531344984
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 11400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 26286
+  packageName: Paint in 3D
+  packageVersion: 4.2.0
+  assetPath: Assets/Plugins/CW/PaintIn3D/Examples/Meshes/Mesh Fixer (CubedSphere).asset
+  uploadId: 846020

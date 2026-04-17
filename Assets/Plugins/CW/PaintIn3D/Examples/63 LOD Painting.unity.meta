@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: a837958d1282aa549ae15c8de3a38f6c
+timeCreated: 1530249627
+licenseType: Store
+DefaultImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 26286
+  packageName: Paint in 3D
+  packageVersion: 4.2.0
+  assetPath: Assets/Plugins/CW/PaintIn3D/Examples/63 LOD Painting.unity
+  uploadId: 846020

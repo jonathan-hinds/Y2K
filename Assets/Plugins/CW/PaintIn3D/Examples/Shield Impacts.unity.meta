@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 2230794616aa2b44589cfeea726c7842
+timeCreated: 1530249627
+licenseType: Store
+DefaultImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 26286
+  packageName: Paint in 3D
+  packageVersion: 4.2.0
+  assetPath: Assets/Plugins/CW/PaintIn3D/Examples/Shield Impacts.unity
+  uploadId: 846020

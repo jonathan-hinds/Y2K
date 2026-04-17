@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: dc0549ab540e5544ca836e9d9901efd1
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 26286
+  packageName: Paint in 3D
+  packageVersion: 4.2.0
+  assetPath: Assets/Plugins/CW/PaintIn3D/Examples/Prefabs/Tool Button.prefab
+  uploadId: 846020

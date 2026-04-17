@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: c988a10c2452dd944a11894858441540
+timeCreated: 1531181032
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 26286
+  packageName: Paint in 3D
+  packageVersion: 4.2.0
+  assetPath: Assets/Plugins/CW/PaintIn3D/Examples/Materials/Tinted Black.mat
+  uploadId: 846020

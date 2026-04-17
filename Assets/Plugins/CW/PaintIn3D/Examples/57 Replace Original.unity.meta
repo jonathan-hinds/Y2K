@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: db48192741017294bb9ff7b551b6d7c7
+timeCreated: 1530249627
+licenseType: Store
+DefaultImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 26286
+  packageName: Paint in 3D
+  packageVersion: 4.2.0
+  assetPath: Assets/Plugins/CW/PaintIn3D/Examples/57 Replace Original.unity
+  uploadId: 846020

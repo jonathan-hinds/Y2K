@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: f43c82fa79085354ba883fd6d09728bc
+timeCreated: 1530602151
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 26286
+  packageName: Paint in 3D
+  packageVersion: 4.2.0
+  assetPath: Assets/Plugins/CW/PaintCore/Extras/Prefabs/Demo.prefab
+  uploadId: 846020

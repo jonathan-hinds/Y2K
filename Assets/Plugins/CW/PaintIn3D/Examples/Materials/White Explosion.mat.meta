@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 093b0e26f6e4cad4dab4da9fbc2c3baf
+timeCreated: 1443431099
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 26286
+  packageName: Paint in 3D
+  packageVersion: 4.2.0
+  assetPath: Assets/Plugins/CW/PaintIn3D/Examples/Materials/White Explosion.mat
+  uploadId: 846020

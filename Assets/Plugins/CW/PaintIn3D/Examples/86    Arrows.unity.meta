@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: c0da9fc2a17f26b43bd8ef2f9c6beada
+timeCreated: 1530249627
+licenseType: Store
+DefaultImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 26286
+  packageName: Paint in 3D
+  packageVersion: 4.2.0
+  assetPath: Assets/Plugins/CW/PaintIn3D/Examples/86    Arrows.unity
+  uploadId: 846020

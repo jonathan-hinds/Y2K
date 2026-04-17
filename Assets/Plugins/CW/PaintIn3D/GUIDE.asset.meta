@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: c136267c1bc99c147ae37c7186423ed2
+timeCreated: 1565254471
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 11400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 26286
+  packageName: Paint in 3D
+  packageVersion: 4.2.0
+  assetPath: Assets/Plugins/CW/PaintIn3D/GUIDE.asset
+  uploadId: 846020

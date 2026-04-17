@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: b7b3ebc5459bebf468e2dc4116acfb90
+timeCreated: 1530247209
+licenseType: Store
+ShaderImporter:
+  defaultTextures: []
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 26286
+  packageName: Paint in 3D
+  packageVersion: 4.2.0
+  assetPath: Assets/Plugins/CW/PaintCore/Required/Resources/CwPremultiply.shader
+  uploadId: 846020

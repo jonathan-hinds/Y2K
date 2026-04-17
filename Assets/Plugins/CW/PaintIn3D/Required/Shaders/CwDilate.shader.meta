@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: 937a87d1967e9f14a97f6d65951fd61d
+ShaderImporter:
+  externalObjects: {}
+  defaultTextures: []
+  nonModifiableTextures: []
+  preprocessorOverride: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 26286
+  packageName: Paint in 3D
+  packageVersion: 4.2.0
+  assetPath: Assets/Plugins/CW/PaintIn3D/Required/Shaders/CwDilate.shader
+  uploadId: 846020

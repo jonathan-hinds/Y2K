@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: 459ab524b40ba144ebd9c75ad169eb29
+timeCreated: 1575271102
+licenseType: Store
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 26286
+  packageName: Paint in 3D
+  packageVersion: 4.2.0
+  assetPath: Assets/Plugins/CW/PaintIn3D/Examples/Meshes/Cyber_Windows.mat
+  uploadId: 846020

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Race.Player;
+using Race.Tagging;
 using Unity.Netcode;
 using Unity.Netcode.Transports.UTP;
 using Unity.Networking.Transport.Relay;
@@ -309,6 +310,16 @@ namespace Race.Multiplayer
 
             unityTransport.SetConnectionData("127.0.0.1", directConnectPort, "0.0.0.0");
             runtimeNetworkManager.AddNetworkPrefab(playerPrefab);
+
+            GameObject graffitiTagPrefab = Resources.Load<GameObject>(GraffitiTagInstance.ResourcePath);
+            if (graffitiTagPrefab != null)
+            {
+                runtimeNetworkManager.AddNetworkPrefab(graffitiTagPrefab);
+            }
+            else
+            {
+                Debug.LogWarning($"Unable to load graffiti tag prefab from Resources at '{GraffitiTagInstance.ResourcePath}'.", this);
+            }
 
             runtimeNetworkManager.OnClientConnectedCallback += HandleClientConnected;
             runtimeNetworkManager.OnClientDisconnectCallback += HandleClientDisconnected;

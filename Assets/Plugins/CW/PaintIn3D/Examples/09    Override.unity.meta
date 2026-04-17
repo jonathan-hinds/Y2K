@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: f6195c85ac73f974fbbf4d8b7a1fd522
+timeCreated: 1530249627
+licenseType: Store
+DefaultImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 26286
+  packageName: Paint in 3D
+  packageVersion: 4.2.0
+  assetPath: Assets/Plugins/CW/PaintIn3D/Examples/09    Override.unity
+  uploadId: 846020

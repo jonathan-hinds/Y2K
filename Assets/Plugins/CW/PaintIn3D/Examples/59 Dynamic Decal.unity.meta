@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 87aaea0cb9e38954495c2e42c89ef7f3
+timeCreated: 1530249627
+licenseType: Store
+DefaultImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 26286
+  packageName: Paint in 3D
+  packageVersion: 4.2.0
+  assetPath: Assets/Plugins/CW/PaintIn3D/Examples/59 Dynamic Decal.unity
+  uploadId: 846020

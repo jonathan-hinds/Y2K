@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 5f671846b85427b4c96e8083b3cddbd8
+timeCreated: 1531181032
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 26286
+  packageName: Paint in 3D
+  packageVersion: 4.2.0
+  assetPath: Assets/Plugins/CW/PaintIn3D/Examples/Materials/Matte White.mat
+  uploadId: 846020

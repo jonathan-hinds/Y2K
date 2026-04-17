@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: b756311110814c542a15d467b53913df
+timeCreated: 1530249627
+licenseType: Store
+DefaultImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 26286
+  packageName: Paint in 3D
+  packageVersion: 4.2.0
+  assetPath: Assets/Plugins/CW/PaintIn3D/Examples/19 Decal.unity
+  uploadId: 846020

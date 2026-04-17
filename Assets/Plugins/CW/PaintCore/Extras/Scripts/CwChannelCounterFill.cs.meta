@@ -1,0 +1,19 @@
+fileFormatVersion: 2
+guid: f7a5f01a1865bc24cbfeb97ef8805b4d
+timeCreated: 1530247183
+licenseType: Store
+MonoImporter:
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 26286
+  packageName: Paint in 3D
+  packageVersion: 4.2.0
+  assetPath: Assets/Plugins/CW/PaintCore/Extras/Scripts/CwChannelCounterFill.cs
+  uploadId: 846020

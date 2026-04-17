@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 2e40e5c2226908d48a4bc764874056f0
+timeCreated: 1530249627
+licenseType: Store
+DefaultImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 26286
+  packageName: Paint in 3D
+  packageVersion: 4.2.0
+  assetPath: Assets/Plugins/CW/PaintIn3D/Examples/55 Change Counter.unity
+  uploadId: 846020

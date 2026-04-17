@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 2f85f944d3f976840888e7e211650881
+timeCreated: 1530621859
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 26286
+  packageName: Paint in 3D
+  packageVersion: 4.2.0
+  assetPath: Assets/Plugins/CW/PaintIn3D/Examples/Materials/Target.mat
+  uploadId: 846020
