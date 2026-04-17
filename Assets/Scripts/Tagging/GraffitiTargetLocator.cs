@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
+using UnityEngine.Rendering;
 using UnityEngine.SceneManagement;
 
 namespace Race.Tagging
@@ -8,6 +9,7 @@ namespace Race.Tagging
     public static class GraffitiTargetLocator
     {
         private static readonly Collider[] OverlapResults = new Collider[64];
+        private static readonly Dictionary<int, int[]> MeshTriangleSubMeshLookup = new();
 
         public static Renderer FindBestRenderer(Collider collider, Vector3 hitPoint)
         {
@@ -119,6 +121,50 @@ namespace Race.Tagging
             return target != null ? target.GetComponent<Renderer>() : null;
         }
 
+        public static int ResolveMaterialIndex(RaycastHit hit, Renderer renderer)
+        {
+            if (renderer == null)
+            {
+                return 0;
+            }
+
+            Material[] materials = renderer.sharedMaterials;
+            if (materials == null || materials.Length <= 1)
+            {
+                return 0;
+            }
+
+            Mesh mesh = null;
+            if (hit.collider is MeshCollider meshCollider)
+            {
+                mesh = meshCollider.sharedMesh;
+            }
+
+            if (mesh == null && renderer.TryGetComponent(out MeshFilter meshFilter))
+            {
+                mesh = meshFilter.sharedMesh;
+            }
+
+            if (mesh == null && renderer is SkinnedMeshRenderer skinnedMeshRenderer)
+            {
+                mesh = skinnedMeshRenderer.sharedMesh;
+            }
+
+            if (mesh == null || hit.triangleIndex < 0)
+            {
+                return 0;
+            }
+
+            int[] triangleLookup = GetTriangleSubMeshLookup(mesh);
+            if (triangleLookup.Length == 0)
+            {
+                return 0;
+            }
+
+            int safeTriangleIndex = Mathf.Clamp(hit.triangleIndex, 0, triangleLookup.Length - 1);
+            return Mathf.Clamp(triangleLookup[safeTriangleIndex], 0, materials.Length - 1);
+        }
+
         private static string BuildHierarchyPath(Transform target)
         {
             List<Transform> chain = new();
@@ -144,6 +190,43 @@ namespace Race.Tagging
             }
 
             return builder.ToString();
+        }
+
+        private static int[] GetTriangleSubMeshLookup(Mesh mesh)
+        {
+            int meshId = mesh.GetInstanceID();
+            if (MeshTriangleSubMeshLookup.TryGetValue(meshId, out int[] cachedLookup))
+            {
+                return cachedLookup;
+            }
+
+            int triangleCount = mesh.triangles.Length / 3;
+            if (triangleCount <= 0)
+            {
+                return System.Array.Empty<int>();
+            }
+
+            int[] triangleLookup = new int[triangleCount];
+            int subMeshCount = Mathf.Max(1, mesh.subMeshCount);
+            for (int subMeshIndex = 0; subMeshIndex < subMeshCount; subMeshIndex++)
+            {
+                SubMeshDescriptor descriptor = mesh.GetSubMesh(subMeshIndex);
+                if (descriptor.topology != MeshTopology.Triangles || descriptor.indexCount <= 0)
+                {
+                    continue;
+                }
+
+                int startTriangle = descriptor.indexStart / 3;
+                int triangleSpan = descriptor.indexCount / 3;
+                int endTriangle = Mathf.Min(triangleCount, startTriangle + triangleSpan);
+                for (int triangleIndex = startTriangle; triangleIndex < endTriangle; triangleIndex++)
+                {
+                    triangleLookup[triangleIndex] = subMeshIndex;
+                }
+            }
+
+            MeshTriangleSubMeshLookup[meshId] = triangleLookup;
+            return triangleLookup;
         }
 
         private static void CollectRenderersNearPoint(

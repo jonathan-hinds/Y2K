@@ -48,6 +48,7 @@ namespace Race.Tagging
         private struct TagTarget
         {
             public string SceneName;
+            public string RendererPath;
             public Vector3 Point;
             public Vector3 SurfacePoint;
             public Vector3 SprayOrigin;
@@ -231,6 +232,7 @@ namespace Race.Tagging
             target = new TagTarget
             {
                 SceneName = volume.SceneName,
+                RendererPath = volume.TargetRendererPath,
                 Point = volume.Center,
                 SurfacePoint = volume.SurfacePoint,
                 SprayOrigin = origin,
@@ -367,7 +369,7 @@ namespace Race.Tagging
                 return;
             }
 
-            RequestBeginTagServerRpc(target.SceneName, target.Point, target.SurfacePoint, target.SprayOrigin, target.Direction, target.Up, target.Size);
+            RequestBeginTagServerRpc(target.SceneName, target.RendererPath, target.Point, target.SurfacePoint, target.SprayOrigin, target.Direction, target.Up, target.Size);
         }
 
         private void BeginOfflineTag(TagTarget target)
@@ -387,7 +389,7 @@ namespace Race.Tagging
                 return;
             }
 
-            activeLocalTagInstance.ConfigureTarget(target.SceneName, target.Point, target.SurfacePoint, target.SprayOrigin, target.Direction, target.Up, target.Size);
+            activeLocalTagInstance.ConfigureTarget(target.SceneName, target.RendererPath, target.Point, target.SurfacePoint, target.SprayOrigin, target.Direction, target.Up, target.Size);
             activeLocalTagInstance.BeginLocalReveal(tagDuration);
         }
 
@@ -537,7 +539,7 @@ namespace Race.Tagging
         }
 
         [ServerRpc]
-        private void RequestBeginTagServerRpc(string sceneName, Vector3 point, Vector3 surfacePoint, Vector3 sprayStart, Vector3 direction, Vector3 up, float size)
+        private void RequestBeginTagServerRpc(string sceneName, string rendererPath, Vector3 point, Vector3 surfacePoint, Vector3 sprayStart, Vector3 direction, Vector3 up, float size)
         {
             if (activeServerTagInstance != null || !ValidateServerTarget(surfacePoint))
             {
@@ -559,7 +561,7 @@ namespace Race.Tagging
                 return;
             }
 
-            activeServerTagInstance.ConfigureTarget(sceneName, point, surfacePoint, sprayStart, direction, up, size);
+            activeServerTagInstance.ConfigureTarget(sceneName, rendererPath, point, surfacePoint, sprayStart, direction, up, size);
             NetworkObject networkObject = instance.GetComponent<NetworkObject>();
             if (networkObject == null)
             {

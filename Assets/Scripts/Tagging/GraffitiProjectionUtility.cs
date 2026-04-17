@@ -5,9 +5,10 @@ namespace Race.Tagging
 {
     public readonly struct GraffitiSurfaceHitSample
     {
-        public GraffitiSurfaceHitSample(Renderer renderer, Vector3 point, Vector3 normal, Vector3 rayDirection, Vector2 uv)
+        public GraffitiSurfaceHitSample(Renderer renderer, int materialIndex, Vector3 point, Vector3 normal, Vector3 rayDirection, Vector2 uv)
         {
             Renderer = renderer;
+            MaterialIndex = materialIndex;
             Point = point;
             Normal = normal;
             RayDirection = rayDirection;
@@ -15,6 +16,7 @@ namespace Race.Tagging
         }
 
         public Renderer Renderer { get; }
+        public int MaterialIndex { get; }
         public Vector3 Point { get; }
         public Vector3 Normal { get; }
         public Vector3 RayDirection { get; }
@@ -32,7 +34,8 @@ namespace Race.Tagging
             float distance,
             Vector3 surfacePoint,
             Vector3 acquisitionCenter,
-            Vector3 acquisitionHalfExtents)
+            Vector3 acquisitionHalfExtents,
+            string targetRendererPath)
         {
             SceneName = sceneName ?? string.Empty;
             Center = center;
@@ -43,6 +46,7 @@ namespace Race.Tagging
             SurfacePoint = surfacePoint;
             AcquisitionCenter = acquisitionCenter;
             AcquisitionHalfExtents = acquisitionHalfExtents;
+            TargetRendererPath = targetRendererPath ?? string.Empty;
         }
 
         public string SceneName { get; }
@@ -54,6 +58,7 @@ namespace Race.Tagging
         public Vector3 SurfacePoint { get; }
         public Vector3 AcquisitionCenter { get; }
         public Vector3 AcquisitionHalfExtents { get; }
+        public string TargetRendererPath { get; }
         public Quaternion Rotation
         {
             get
@@ -189,6 +194,12 @@ namespace Race.Tagging
                 Mathf.Max(halfExtents.x, acquisitionRadius),
                 Mathf.Max(halfExtents.y, acquisitionRadius),
                 Mathf.Max(0.05f, distanceFromSpray * 0.5f));
+            Renderer targetRenderer = GraffitiTargetLocator.FindBestRenderer(hit.collider, hit.point);
+            string targetRendererPath = string.Empty;
+            if (targetRenderer != null && GraffitiTargetLocator.TryBuildPath(targetRenderer, out _, out string hierarchyPath))
+            {
+                targetRendererPath = hierarchyPath;
+            }
 
             volume = new GraffitiProjectionVolume(
                 hit.collider.gameObject.scene.name,
@@ -199,7 +210,8 @@ namespace Race.Tagging
                 distanceFromSpray,
                 hit.point,
                 acquisitionCenter,
-                acquisitionHalfExtents);
+                acquisitionHalfExtents,
+                targetRendererPath);
             return true;
         }
 
@@ -223,7 +235,7 @@ namespace Race.Tagging
                 Mathf.Max(halfExtents.x, 0.05f),
                 Mathf.Max(halfExtents.y, 0.05f),
                 Mathf.Max(0.05f, previewDistance * 0.5f));
-            return new GraffitiProjectionVolume(sceneName, center, safeDirection, up, halfExtents, previewDistance, center, acquisitionCenter, acquisitionHalfExtents);
+            return new GraffitiProjectionVolume(sceneName, center, safeDirection, up, halfExtents, previewDistance, center, acquisitionCenter, acquisitionHalfExtents, string.Empty);
         }
 
         public static int CollectSurfaceHitSamples(
@@ -235,7 +247,8 @@ namespace Race.Tagging
             int sampleRows,
             ICollection<GraffitiSurfaceHitSample> samples,
             ICollection<Renderer> renderers = null,
-            ICollection<Vector3> hitPoints = null)
+            ICollection<Vector3> hitPoints = null,
+            Renderer requiredRenderer = null)
         {
             if (sampleColumns <= 0 || sampleRows <= 0)
             {
@@ -292,12 +305,13 @@ namespace Race.Tagging
                     }
 
                     Renderer renderer = GraffitiTargetLocator.FindBestRenderer(bestHit.collider, bestHit.point);
-                    if (renderer == null)
+                    if (renderer == null || (requiredRenderer != null && renderer != requiredRenderer))
                     {
                         continue;
                     }
 
-                    samples?.Add(new GraffitiSurfaceHitSample(renderer, bestHit.point, bestHit.normal, rayDirection, new Vector2(u01, v01)));
+                    int materialIndex = GraffitiTargetLocator.ResolveMaterialIndex(bestHit, renderer);
+                    samples?.Add(new GraffitiSurfaceHitSample(renderer, materialIndex, bestHit.point, bestHit.normal, rayDirection, new Vector2(u01, v01)));
                     if (seenRendererIds != null && seenRendererIds.Add(renderer.GetInstanceID()))
                     {
                         renderers.Add(renderer);

@@ -74,7 +74,10 @@ namespace Race.Grinding
         {
             CacheReferences();
             RefreshCachedLength();
-            EnsureGeneratedColliderRoot();
+            if (CanRunEditorAuthoring())
+            {
+                EnsureGeneratedColliderRoot();
+            }
         }
 
         private void OnEnable()
@@ -87,6 +90,11 @@ namespace Race.Grinding
         {
             CacheReferences();
             AssignDefaultLayer();
+            if (!CanRunEditorAuthoring())
+            {
+                return;
+            }
+
             EnsureGeneratedColliderRoot();
             ApplyAuthoring();
         }
@@ -95,6 +103,11 @@ namespace Race.Grinding
         {
             CacheReferences();
             RefreshCachedLength();
+            if (!CanRunEditorAuthoring())
+            {
+                return;
+            }
+
             EnsureGeneratedColliderRoot();
 
             if (!autoRebuildInEditor || Application.isPlaying)
@@ -108,9 +121,15 @@ namespace Race.Grinding
         [ContextMenu("Apply Grind Rail")]
         public void ApplyAuthoring()
         {
+            if (!CanRunEditorAuthoring())
+            {
+                return;
+            }
+
             CacheReferences();
             RefreshCachedLength();
             ConfigureExtrude();
+            EnsureGeneratedColliderRoot();
             RebuildGeneratedColliders();
         }
 
@@ -313,6 +332,11 @@ namespace Race.Grinding
 
         private void EnsureGeneratedColliderRoot()
         {
+            if (!CanRunEditorAuthoring())
+            {
+                return;
+            }
+
             if (generatedColliderRoot != null)
             {
                 return;
@@ -333,6 +357,11 @@ namespace Race.Grinding
 
         private void RebuildGeneratedColliders()
         {
+            if (!CanRunEditorAuthoring())
+            {
+                return;
+            }
+
             if (generatedColliderRoot == null || splineContainer == null)
             {
                 return;
@@ -394,6 +423,11 @@ namespace Race.Grinding
 
         private void ClearGeneratedColliders()
         {
+            if (!CanRunEditorAuthoring())
+            {
+                return;
+            }
+
             if (generatedColliderRoot == null)
             {
                 return;
@@ -430,6 +464,11 @@ namespace Race.Grinding
         private void QueueApplyAuthoring()
         {
 #if UNITY_EDITOR
+            if (!CanRunEditorAuthoring())
+            {
+                return;
+            }
+
             if (Application.isPlaying)
             {
                 ApplyAuthoring();
@@ -449,16 +488,26 @@ namespace Race.Grinding
         }
 
 #if UNITY_EDITOR
+        private bool CanRunEditorAuthoring()
+        {
+            return Application.isPlaying || !PrefabUtility.IsPartOfPrefabAsset(gameObject);
+        }
+
         private void ApplyAuthoringDelayed()
         {
             rebuildQueued = false;
-            if (this == null || Application.isPlaying)
+            if (this == null || !CanRunEditorAuthoring())
             {
                 return;
             }
 
             ApplyAuthoring();
             EditorUtility.SetDirty(this);
+        }
+#else
+        private bool CanRunEditorAuthoring()
+        {
+            return true;
         }
 #endif
     }

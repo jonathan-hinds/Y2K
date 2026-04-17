@@ -63,6 +63,7 @@ namespace Race.Tagging
         private struct TargetState : INetworkSerializable, IEquatable<TargetState>
         {
             public FixedString128Bytes SceneName;
+            public FixedString512Bytes RendererPath;
             public Vector3 Point;
             public Vector3 SurfacePoint;
             public Vector3 SprayOrigin;
@@ -73,6 +74,7 @@ namespace Race.Tagging
             public bool Equals(TargetState other)
             {
                 return SceneName.Equals(other.SceneName)
+                    && RendererPath.Equals(other.RendererPath)
                     && Point == other.Point
                     && SurfacePoint == other.SurfacePoint
                     && SprayOrigin == other.SprayOrigin
@@ -84,6 +86,7 @@ namespace Race.Tagging
             public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
             {
                 serializer.SerializeValue(ref SceneName);
+                serializer.SerializeValue(ref RendererPath);
                 serializer.SerializeValue(ref Point);
                 serializer.SerializeValue(ref SurfacePoint);
                 serializer.SerializeValue(ref SprayOrigin);
@@ -200,11 +203,12 @@ namespace Race.Tagging
             base.OnDestroy();
         }
 
-        public void ConfigureTarget(string sceneName, Vector3 point, Vector3 surfacePoint, Vector3 sprayOrigin, Vector3 direction, Vector3 surfaceUp, float size)
+        public void ConfigureTarget(string sceneName, string rendererPath, Vector3 point, Vector3 surfacePoint, Vector3 sprayOrigin, Vector3 direction, Vector3 surfaceUp, float size)
         {
             TargetState target = new()
             {
                 SceneName = sceneName,
+                RendererPath = rendererPath,
                 Point = point,
                 SurfacePoint = surfacePoint,
                 SprayOrigin = sprayOrigin,
@@ -566,7 +570,7 @@ namespace Race.Tagging
                     continue;
                 }
 
-                if (!GraffitiPaintSurface.TryGetOrCreate(sample.Renderer, out GraffitiPaintSurface surface))
+                if (!GraffitiPaintSurface.TryGetOrCreate(sample.Renderer, sample.MaterialIndex, out GraffitiPaintSurface surface))
                 {
                     continue;
                 }
@@ -907,7 +911,8 @@ namespace Race.Tagging
                 Vector3.Distance(ResolveSprayOrigin(target), target.Point),
                 target.SurfacePoint.sqrMagnitude > 0.0001f ? target.SurfacePoint : target.Point,
                 target.Point,
-                halfExtents);
+                halfExtents,
+                target.RendererPath.ToString());
         }
 
         private static Quaternion BuildRotation(Vector3 direction, Vector3 up)

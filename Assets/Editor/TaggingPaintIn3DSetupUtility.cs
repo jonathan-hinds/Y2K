@@ -79,7 +79,14 @@ namespace Race.Editor
                 up = Vector3.ProjectOnPlane(camera.transform.right, direction);
             }
 
-            tagInstance.ConfigureTarget(hit.collider.gameObject.scene.name, hit.point, hit.point, camera.transform.position, direction, up.normalized, 1.45f);
+            Renderer targetRenderer = GraffitiTargetLocator.FindBestRenderer(hit.collider, hit.point);
+            string rendererPath = string.Empty;
+            if (targetRenderer != null && GraffitiTargetLocator.TryBuildPath(targetRenderer, out _, out string hierarchyPath))
+            {
+                rendererPath = hierarchyPath;
+            }
+
+            tagInstance.ConfigureTarget(hit.collider.gameObject.scene.name, rendererPath, hit.point, hit.point, camera.transform.position, direction, up.normalized, 1.45f);
             tagInstance.BeginLocalReveal(0.15f);
             Object.Destroy(instance, 1.5f);
             Debug.Log($"Paint in 3D smoke test painted '{hit.collider.name}'.");
