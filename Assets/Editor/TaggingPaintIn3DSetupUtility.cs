@@ -67,9 +67,12 @@ namespace Race.Editor
                 networkObject.enabled = false;
             }
 
-            Vector3 direction = (hit.point - camera.transform.position).sqrMagnitude > 0.0001f
+            Vector3 aimDirection = (hit.point - camera.transform.position).sqrMagnitude > 0.0001f
                 ? (hit.point - camera.transform.position).normalized
                 : camera.transform.forward;
+            Vector3 direction = hit.normal.sqrMagnitude > 0.0001f
+                ? (Vector3.Dot(hit.normal, aimDirection) <= 0f ? -hit.normal.normalized : hit.normal.normalized)
+                : aimDirection;
             Vector3 up = Vector3.ProjectOnPlane(camera.transform.up, direction);
             if (up.sqrMagnitude <= 0.0001f)
             {

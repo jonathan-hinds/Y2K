@@ -181,6 +181,8 @@ namespace Race.Tagging
                 return false;
             }
 
+            Vector3 projectionDirection = ResolveProjectionDirection(safeDirection, hit.normal);
+            projectionUp = BuildUp(projectionDirection, preferredUp);
             Vector3 center = sprayOrigin + safeDirection * distanceFromSpray + safeDirection * forwardOffset;
             Vector3 acquisitionCenter = sprayOrigin + safeDirection * (distanceFromSpray * 0.5f);
             Vector3 acquisitionHalfExtents = new(
@@ -191,7 +193,7 @@ namespace Race.Tagging
             volume = new GraffitiProjectionVolume(
                 hit.collider.gameObject.scene.name,
                 center,
-                safeDirection,
+                projectionDirection,
                 projectionUp,
                 halfExtents,
                 distanceFromSpray,
@@ -558,6 +560,22 @@ namespace Race.Tagging
             }
 
             return up.normalized;
+        }
+
+        private static Vector3 ResolveProjectionDirection(Vector3 fallbackDirection, Vector3 surfaceNormal)
+        {
+            Vector3 safeFallbackDirection = fallbackDirection.sqrMagnitude > 0.0001f
+                ? fallbackDirection.normalized
+                : Vector3.forward;
+            if (surfaceNormal.sqrMagnitude <= 0.0001f)
+            {
+                return safeFallbackDirection;
+            }
+
+            Vector3 safeSurfaceNormal = surfaceNormal.normalized;
+            return Vector3.Dot(safeSurfaceNormal, safeFallbackDirection) <= 0f
+                ? -safeSurfaceNormal
+                : safeSurfaceNormal;
         }
     }
 }
